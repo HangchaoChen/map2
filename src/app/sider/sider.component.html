@@ -1,0 +1,13 @@
+<ul nz-menu nzTheme="dark" nzMode="inline" [nzInlineCollapsed]="true">
+  <li nz-menu-item nz-tooltip nzPlacement="right" [nzTitle]="'Settings'" (click)="showSettings()">
+    <i nz-icon nzType="setting"></i>
+  <li nz-menu-item nz-tooltip nzPlacement="right" [nzTitle]="'Tables'" (click)="showTables()">
+    <i nz-icon nzType="table"></i>
+  </li>
+</ul>
+<!-- settings starts here-->
+<nz-drawer [nzClosable]="false" [nzVisible]="openSetting" nzPlacement="left" nzTitle="Algorithm Settings"
+  (nzOnClose)="closeSettings()">
+  <app-setting>
+  </app-setting>
+</nz-drawer>
