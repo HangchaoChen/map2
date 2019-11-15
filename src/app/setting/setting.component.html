@@ -1,7 +1,11 @@
 <ul nz-menu nzMode="inline">
   <li nz-menu-group nzTitle="Year Selection">
     <ul>
-      <nz-select [(ngModel)]="selectedYear" nzAllowClear nzPlaceHolder="Choose a year">
+      <nz-select
+        [(ngModel)]="selectedYear"
+        nzAllowClear
+        nzPlaceHolder="Choose a year"
+      >
         <nz-option nzValue="2010" nzLabel="2010"></nz-option>
         <nz-option nzValue="2011" nzLabel="2011"></nz-option>
         <nz-option nzValue="2012" nzLabel="2012"></nz-option>
@@ -10,33 +14,79 @@
   </li>
   <li nz-menu-group nzTitle="Number of district">
     <ul>
-      <nz-input-number [(ngModel)]="districtNumber" [nzMin]="0" [nzMax]="100" [nzStep]="1"></nz-input-number>
+      <nz-input-number
+        [(ngModel)]="numberOfDistrict"
+        [nzMin]="0"
+        [nzMax]="100"
+        [nzStep]="1"
+      ></nz-input-number>
     </ul>
   </li>
 
   <li nz-submenu nzTitle="Weights" nzIcon="edit">
     <ul>
-      <li nz-menu-item>Option 5</li>
-      <li nz-menu-item>Option 6</li>
-      <li nz-submenu nzTitle="Submenu">
-        <ul>
-          <li nz-menu-item>Option 7</li>
-          <li nz-menu-item>Option 8</li>
-          <li nz-submenu nzTitle="Submenu">
-            <ul>
-              <li nz-menu-item>Option 9</li>
-              <li nz-menu-item>Option 10</li>
-            </ul>
-          </li>
-        </ul>
+      <li nz-menu-item>
+        <nz-row>
+          <nz-col nzSpan="13">
+            <nz-slider
+              [nzMin]="0"
+              [nzMax]="100"
+              [(ngModel)]="weight1"
+            ></nz-slider>
+          </nz-col>
+          <div nz-col nzSpan="3">&emsp;{{ weight1 }}</div>
+        </nz-row>
+      </li>
+      <li nz-menu-item>
+        <nz-row>
+          <nz-col nzSpan="13">
+            <nz-slider
+              [nzMin]="0"
+              [nzMax]="100"
+              [(ngModel)]="weight2"
+            ></nz-slider>
+          </nz-col>
+          <div nz-col nzSpan="3">&emsp;{{ weight2 }}</div>
+        </nz-row>
+      </li>
+      <li nz-menu-item>
+        <nz-row>
+          <nz-col nzSpan="13">
+            <nz-slider
+              [nzMin]="0"
+              [nzMax]="100"
+              [(ngModel)]="weight3"
+            ></nz-slider>
+          </nz-col>
+          <div nz-col nzSpan="3">&emsp;{{ weight3 }}</div>
+        </nz-row>
       </li>
     </ul>
   </li>
-  <li nz-submenu nzTitle="Navigation Three" nzIcon="setting">
-    <ul>
-      <li nz-menu-item>Option 11</li>
-      <li nz-menu-item>Option 12</li>
-      <li nz-menu-item>Option 13</li>
-    </ul>
+
+  <li
+    nz-menu-group
+    nzTitle="Update at the end of each discrete iteration?"
+  ></li>
+  <li nz-menu-item>
+    <nz-switch
+      [ngModel]="updateBehavior"
+      [nzCheckedChildren]="checkedTemplate"
+      [nzUnCheckedChildren]="unCheckedTemplate"
+      (click)="onClickSwitch()"
+    ></nz-switch>
+    <ng-template #checkedTemplate><i nz-icon nzType="check"></i></ng-template>
+    <ng-template #unCheckedTemplate><i nz-icon nzType="close"></i></ng-template>
+  </li>
+  <li nz-menu-item>
+    <button
+      nz-button
+      nzType="primary"
+      [nzSize]="large"
+      nzShape="round"
+      (click)="onClickApply()"
+    >
+      Apply
+    </button>
   </li>
 </ul>
