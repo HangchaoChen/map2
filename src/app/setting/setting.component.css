@@ -2,3 +2,9 @@
   width: 232px;
   height: 100%;
 }
+nz-select {
+  width: 210px;
+}
+nz-input-number {
+  width: 210px;
+}
