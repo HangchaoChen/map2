@@ -6,7 +6,7 @@ import { Component, OnInit } from "@angular/core";
   styleUrls: ["./sider.component.css"]
 })
 export class SiderComponent implements OnInit {
-  openSetting = true;
+  openSetting = false;
   showSettings() {
     console.log("show setting");
     this.openSetting = true;
