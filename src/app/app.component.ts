@@ -16,7 +16,7 @@ export class AppComponent {
   isCollapsed = true;
   title = "map2";
 
-  private serverUrl = "http://192.168.1.57:8080/state";
+  private serverUrl = "http://localhost:8080/socket";
   private stompClient;
 
   initializeWebSocketConnection() {
@@ -24,7 +24,7 @@ export class AppComponent {
     this.stompClient = Stomp.over(ws);
     let that = this;
     this.stompClient.connect({}, function(frame) {
-      that.stompClient.subscribe("/precinct", message => {
+      that.stompClient.subscribe("/chat", message => {
         console.log("subscribed: ");
         if (message.body) {
           //$(".chat").append("<div class='message'>" + message.body + "</div>");
@@ -32,10 +32,11 @@ export class AppComponent {
         }
       });
     });
+    
   }
 
   sendMessage(message) {
-    this.stompClient.send("/state/state/getDistrictGeoJSON", {}, message);
+    this.stompClient.send("/app/send/message", {}, message);
     $("#input").val("");
   }
 }
