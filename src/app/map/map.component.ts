@@ -1,6 +1,8 @@
+import { environment } from "./../../environments/environment.prod";
 import { Component, OnInit } from "@angular/core";
 import { HttpClient } from "@angular/common/http";
 import * as L from "leaflet";
+import * as mapboxgl from "mapbox-gl";
 import "leaflet-ajax";
 
 @Component({
@@ -12,6 +14,7 @@ export class MapComponent implements OnInit {
   constructor(private http: HttpClient) {}
 
   ngOnInit() {
+   // mapboxgl.accessToken = environment.mapbox.accessToken;
     var map = L.map("map").setView([37.8, -96], 4);
 
     L.tileLayer(
@@ -22,7 +25,9 @@ export class MapComponent implements OnInit {
           'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors, ' +
           '<a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, ' +
           'Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',
-        id: "mapbox.light"
+        id: "mapbox.light",
+        accessToken:
+          "pk.eyJ1IjoicGlnZW9uZ3UiLCJhIjoiY2szNWZreTh6MDkzMDNjbXlyeDU5NzNjNyJ9.nG5xl3rGGzmLGDDhexrtZA"
       }
     ).addTo(map);
 
@@ -57,7 +62,7 @@ export class MapComponent implements OnInit {
 
     function stateStyle(feature) {
       return {
-        fillColor: "white",
+        fillColor: "green",
         weight: 2,
         opacity: 1,
         color: "white"
@@ -100,13 +105,23 @@ export class MapComponent implements OnInit {
 
     function zoomToFeature(e) {
       let name = e.target.feature.properties.name;
-      console.log(name);
+      console.log("name:  ", name);
       if (name === "Illinois") {
         geojson = L.geoJson
           .ajax(
             "https://raw.githubusercontent.com/HangchaoChen/States_GeoJSON/master/IL_district_boundary.json",
             {
-              style: style,
+              style: stateStyle,
+              onEachFeature: onEachFeature
+            }
+          )
+          .addTo(map);
+      } else if (name == "Oregon") {
+        geojson = L.geoJson
+          .ajax(
+            "https://raw.githubusercontent.com/HangchaoChen/States_GeoJSON/master/Oregon_geo_precinct.json",
+            {
+              style: stateStyle,
               onEachFeature: onEachFeature
             }
           )
