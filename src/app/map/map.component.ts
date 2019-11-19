@@ -11,10 +11,12 @@ import "leaflet-ajax";
   styleUrls: ["./map.component.css"]
 })
 export class MapComponent implements OnInit {
+  selectedState;
+
   constructor(private http: HttpClient) {}
 
   ngOnInit() {
-   // mapboxgl.accessToken = environment.mapbox.accessToken;
+    // mapboxgl.accessToken = environment.mapbox.accessToken;
     var map = L.map("map").setView([37.8, -96], 4);
 
     L.tileLayer(
@@ -106,6 +108,7 @@ export class MapComponent implements OnInit {
     function zoomToFeature(e) {
       let name = e.target.feature.properties.name;
       console.log("name:  ", name);
+
       if (name === "Illinois") {
         geojson = L.geoJson
           .ajax(
@@ -116,6 +119,15 @@ export class MapComponent implements OnInit {
             }
           )
           .addTo(map);
+        /*
+        geojson = L.geoJson.ajax(
+          "https://raw.githubusercontent.com/HangchaoChen/States_GeoJSON/master/Illinois_geo.json",
+          {
+            style: style  ,
+            onEachFeature: onEachFeature
+          }
+        );
+        */
       } else if (name == "Oregon") {
         geojson = L.geoJson
           .ajax(

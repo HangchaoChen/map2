@@ -1,4 +1,9 @@
 import { Component, OnInit } from "@angular/core";
+//test
+import * as Stomp from "stompjs";
+import * as SockJS from "sockjs-client";
+import $ from "jquery";
+//
 
 @Component({
   selector: "app-setting",
@@ -29,9 +34,34 @@ export class SettingComponent implements OnInit {
     console.log("w2: ", this.weight2);
     console.log("w3: ", this.weight3);
     console.log("update: ", this.updateBehavior);
+    this.sendMessage("test"); //test
   }
 
-  constructor() {}
+  constructor() {
+    this.initializeWebSocketConnection();
+  }
+  private serverUrl = "http://localhost:8080/socket";
+  private stompClient;
+
+  initializeWebSocketConnection() {
+    let ws = new SockJS(this.serverUrl);
+    this.stompClient = Stomp.over(ws);
+    let that = this;
+    this.stompClient.connect({}, function(frame) {
+      that.stompClient.subscribe("/chat", message => {
+        console.log("subscribed: ");
+        if (message.body) {
+          //$(".chat").append("<div class='message'>" + message.body + "</div>");
+          console.log("message.body :", message.body);
+        }
+      });
+    });
+  }
+
+  sendMessage(message) {
+    this.stompClient.send("/app/send/message", {}, message);
+    $("#input").val("");
+  }
 
   ngOnInit() {}
 }
