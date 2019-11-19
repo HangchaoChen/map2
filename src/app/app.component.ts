@@ -32,6 +32,7 @@ export class AppComponent {
         }
       });
     });
+    
   }
 
   sendMessage(message) {
