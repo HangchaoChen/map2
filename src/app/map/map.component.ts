@@ -1,8 +1,8 @@
-import { environment } from "./../../environments/environment.prod";
+//import { environment } from "./../../environments/environment.prod";
 import { Component, OnInit } from "@angular/core";
 import { HttpClient } from "@angular/common/http";
 import * as L from "leaflet";
-import * as mapboxgl from "mapbox-gl";
+//import * as mapboxgl from "mapbox-gl";
 import "leaflet-ajax";
 
 @Component({
@@ -11,13 +11,67 @@ import "leaflet-ajax";
   styleUrls: ["./map.component.css"]
 })
 export class MapComponent implements OnInit {
-  selectedState;
-
   constructor(private http: HttpClient) {}
 
   ngOnInit() {
     // mapboxgl.accessToken = environment.mapbox.accessToken;
     var map = L.map("map").setView([37.8, -96], 4);
+    var selectedState;
+    var IL_state = L.geoJson.ajax(
+      "https://raw.githubusercontent.com/HangchaoChen/States_GeoJSON/9f6e99027ae9af858c8135cbe21da3f0fa3d11bf/IL_state",
+      {
+        style: style,
+        onEachFeature: onEachFeature
+      }
+    );
+    map.addLayer(IL_state);
+    var OH_state = L.geoJson.ajax(
+      "https://raw.githubusercontent.com/HangchaoChen/States_GeoJSON/master/OH_state",
+      {
+        style: style,
+        onEachFeature: onEachFeature
+      }
+    );
+    map.addLayer(OH_state);
+
+    var statesLayer = L.geoJson.ajax(
+      "https://raw.githubusercontent.com/HangchaoChen/States_GeoJSON/master/states_GeoJSON",
+      {
+        style: style,
+        onEachFeature: onEachFeature
+      }
+    );
+    //map.addLayer(statesLayer);
+
+    var OR_state = L.geoJson.ajax("", {
+      style: style,
+      onEachFeature: onEachFeature
+    });
+
+    var IL_district = L.geoJson.ajax(
+      "https://raw.githubusercontent.com/HangchaoChen/States_GeoJSON/master/Illinois_congressional_geo.json",
+      {
+        style: style,
+        onEachFeature: onEachFeature
+      }
+    );
+    var OR_district = L.geoJson.ajax(
+      "https://raw.githubusercontent.com/HangchaoChen/States_GeoJSON/master/Oregon_geo_precinct.json",
+      {
+        style: style,
+        onEachFeature: onEachFeature
+      }
+    );
+    var OH_district = L.geoJson.ajax(
+      "https://raw.githubusercontent.com/HangchaoChen/States_GeoJSON/master/Ohio_congressional_geo.json",
+      {
+        style: style,
+        onEachFeature: onEachFeature
+      }
+    );
+    var IL_precinct;
+    var OR_precinct;
+    var OH_precinct;
 
     L.tileLayer(
       "https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token=pk.eyJ1IjoibWFwYm94IiwiYSI6ImNpejY4NXVycTA2emYycXBndHRqcmZ3N3gifQ.rJcFIG214AriISLbB6B5aw",
@@ -98,46 +152,32 @@ export class MapComponent implements OnInit {
       info.update(layer.feature.properties);
     }
 
-    var geojson;
+    //var geojson;
 
     function resetHighlight(e) {
-      geojson.resetStyle(e.target);
+      statesLayer.resetStyle(e.target);
       info.update();
     }
 
     function zoomToFeature(e) {
       let name = e.target.feature.properties.name;
       console.log("name:  ", name);
+      let test = e.target.feature.properties.CD116FP;
+      console.log("test", test);
 
       if (name === "Illinois") {
-        geojson = L.geoJson
-          .ajax(
-            "https://raw.githubusercontent.com/HangchaoChen/States_GeoJSON/master/IL_district_boundary.json",
-            {
-              style: stateStyle,
-              onEachFeature: onEachFeature
-            }
-          )
-          .addTo(map);
-        /*
-        geojson = L.geoJson.ajax(
-          "https://raw.githubusercontent.com/HangchaoChen/States_GeoJSON/master/Illinois_geo.json",
-          {
-            style: style  ,
-            onEachFeature: onEachFeature
-          }
-        );
-        */
+        selectedState = "Illinois";
+        map.removeLayer(IL_state);
+        map.addLayer(IL_district);
       } else if (name == "Oregon") {
-        geojson = L.geoJson
-          .ajax(
-            "https://raw.githubusercontent.com/HangchaoChen/States_GeoJSON/master/Oregon_geo_precinct.json",
-            {
-              style: stateStyle,
-              onEachFeature: onEachFeature
-            }
-          )
-          .addTo(map);
+        selectedState = "Oregon";
+      } else if (name == "Ohio") {
+        selectedState = "Ohio";
+        map.removeLayer(OH_state);
+      } else if (name == undefined) {
+        if (selectedState == "Illinois") {
+          let url = "";
+        }
       }
 
       map.fitBounds(e.target.getBounds());
@@ -150,6 +190,8 @@ export class MapComponent implements OnInit {
         click: zoomToFeature
       });
     }
+
+    /*
     geojson = L.geoJson
       .ajax(
         "https://raw.githubusercontent.com/HangchaoChen/States_GeoJSON/master/states_GeoJSON",
@@ -158,7 +200,7 @@ export class MapComponent implements OnInit {
           onEachFeature: onEachFeature
         }
       )
-      .addTo(map);
+      .addTo(map);*/
 
     map.attributionControl.addAttribution(
       'Population data &copy; <a href="http://census.gov/">US Census Bureau</a>'

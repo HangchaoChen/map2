@@ -40,6 +40,7 @@ export class SettingComponent implements OnInit {
   constructor() {
     this.initializeWebSocketConnection();
   }
+
   private serverUrl = "http://localhost:8080/socket";
   private stompClient;
 
