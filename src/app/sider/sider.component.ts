@@ -26,7 +26,5 @@ export class SiderComponent implements OnInit {
     console.log("send messgae call");
   }
 
-  //constructor() {}
-
   ngOnInit() {}
 }
