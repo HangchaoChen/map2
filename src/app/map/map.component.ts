@@ -1,9 +1,8 @@
-//import { environment } from "./../../environments/environment.prod";
 import { Component, OnInit } from "@angular/core";
 import { HttpClient } from "@angular/common/http";
 import * as L from "leaflet";
-//import * as mapboxgl from "mapbox-gl";
 import "leaflet-ajax";
+import { WebsocketService } from "../websocket.service";
 
 @Component({
   selector: "app-map",
@@ -11,93 +10,123 @@ import "leaflet-ajax";
   styleUrls: ["./map.component.css"]
 })
 export class MapComponent implements OnInit {
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient, private socket: WebsocketService) {}
 
   ngOnInit() {
-    // mapboxgl.accessToken = environment.mapbox.accessToken;
+    var map = L.map("map").setView([37.8, -96], 4);
+    enum stateName{
+      
+    }
     var IL = "Illinois";
     var OH = "Ohio";
     var OR = "Oregon";
-
-    var map = L.map("map").setView([37.8, -96], 4);
     var selectedState;
-    var IL_state = L.geoJson.ajax(
-      "https://raw.githubusercontent.com/HangchaoChen/States_GeoJSON/9f6e99027ae9af858c8135cbe21da3f0fa3d11bf/IL_state",
-      {
-        style: style,
-        onEachFeature: onEachFeature
-      }
-    );
-    map.addLayer(IL_state);
-    var OH_state = L.geoJson.ajax(
-      "https://raw.githubusercontent.com/HangchaoChen/States_GeoJSON/master/OH_state",
-      {
-        style: style,
-        onEachFeature: onEachFeature
-      }
-    );
-    map.addLayer(OH_state);
+    var ILState;
+    var OHState;
+    var ORState;
+    var statesLayer;
+    var ILDistrict;
+    var ORDistrict;
+    var OHDistrict;
+    var ILPrecinct;
+    var ORPrecinct;
+    var OHPrecinct;
 
-    var OR_state = L.geoJson.ajax(
-      "https://raw.githubusercontent.com/HangchaoChen/States_GeoJSON/master/OR_state",
-      {
-        style: style,
-        onEachFeature: onEachFeature
-      }
-    );
-    map.addLayer(OR_state);
+    loadStates();
 
-    var statesLayer = L.geoJson.ajax(
-      "https://raw.githubusercontent.com/HangchaoChen/States_GeoJSON/master/states_GeoJSON",
-      {
-        style: style,
-        onEachFeature: onEachFeature
-      }
-    );
-    //map.addLayer(statesLayer);
+    loadILDistrict();
+    loadORDistrict();
+    loadOHDistrict();
+    loadILPrecinct();
+    loadORPrecinct();
 
-    var IL_district = L.geoJson.ajax(
-      "https://raw.githubusercontent.com/HangchaoChen/States_GeoJSON/master/Illinois_congressional_geo.json",
-      {
-        style: style,
-        onEachFeature: onEachFeature
-      }
-    );
-    var OR_district = L.geoJson.ajax(
-      "https://raw.githubusercontent.com/HangchaoChen/States_GeoJSON/master/Oregon_congressional_geo.json",
-      {
-        style: style,
-        onEachFeature: onEachFeature
-      }
-    );
-    var OH_district = L.geoJson.ajax(
-      "https://raw.githubusercontent.com/HangchaoChen/States_GeoJSON/master/Ohio_congressional_geo.json",
-      {
-        style: style,
-        onEachFeature: onEachFeature
-      }
-    );
+    function loadStates() {
+      ILState = L.geoJson.ajax(
+        "https://raw.githubusercontent.com/HangchaoChen/States_GeoJSON/9f6e99027ae9af858c8135cbe21da3f0fa3d11bf/IL_state",
+        {
+          style: style,
+          onEachFeature: onEachFeature
+        }
+      );
+      map.addLayer(ILState);
+      OHState = L.geoJson.ajax(
+        "https://raw.githubusercontent.com/HangchaoChen/States_GeoJSON/master/OH_state",
+        {
+          style: style,
+          onEachFeature: onEachFeature
+        }
+      );
+      map.addLayer(OHState);
+      ORState = L.geoJson.ajax(
+        "https://raw.githubusercontent.com/HangchaoChen/States_GeoJSON/master/OR_state",
+        {
+          style: style,
+          onEachFeature: onEachFeature
+        }
+      );
+      map.addLayer(ORState);
 
-    var IL_precinct = L.geoJson.ajax(
-      "https://raw.githubusercontent.com/HangchaoChen/States_GeoJSON/master/Illinois_geo.json",
-      {
-        style: style,
-        onEachFeature: onEachFeature
-      }
-    );
-    var OR_precinct = L.geoJson.ajax(
-      "https://raw.githubusercontent.com/HangchaoChen/States_GeoJSON/master/Oregon_geo_precinct.json",
-      {
-        style: style,
-        onEachFeature: onEachFeature
-      }
-    );
+      statesLayer = L.geoJson.ajax(
+        "https://raw.githubusercontent.com/HangchaoChen/States_GeoJSON/master/states_GeoJSON",
+        {
+          style: style,
+          onEachFeature: onEachFeature
+        }
+      );
+    }
 
-    var OH_precinct;
+    function loadILDistrict() {
+      ILDistrict = L.geoJson.ajax(
+        "https://raw.githubusercontent.com/HangchaoChen/States_GeoJSON/master/Illinois_congressional_geo.json",
+        {
+          style: style,
+          onEachFeature: onEachFeature
+        }
+      );
+    }
+
+    function loadORDistrict() {
+      ORDistrict = L.geoJson.ajax(
+        "https://raw.githubusercontent.com/HangchaoChen/States_GeoJSON/master/Oregon_congressional_geo_processed.json",
+        {
+          style: style,
+          onEachFeature: onEachFeature
+        }
+      );
+    }
+
+    function loadOHDistrict() {
+      OHDistrict = L.geoJson.ajax(
+        "https://raw.githubusercontent.com/HangchaoChen/States_GeoJSON/master/Ohio_congressional_geo.json",
+        {
+          style: style,
+          onEachFeature: onEachFeature
+        }
+      );
+    }
+
+    function loadILPrecinct() {
+      ILPrecinct = L.geoJson.ajax(
+        "https://raw.githubusercontent.com/HangchaoChen/States_GeoJSON/master/Illinois_geo.json",
+        {
+          style: style,
+          onEachFeature: onEachFeature
+        }
+      );
+    }
+
+    function loadORPrecinct() {
+      ORPrecinct = L.geoJson.ajax(
+        "https://raw.githubusercontent.com/HangchaoChen/States_GeoJSON/master/Oregon_geo_precinct.json",
+        {
+          style: style,
+          onEachFeature: onEachFeature
+        }
+      );
+    }
 
     L.tileLayer(
       "https://api.mapbox.com/styles/v1/pigeongu/ck36rswf038r61cqrqi7n8jeb/tiles/256/{z}/{x}/{y}@2x?access_token=pk.eyJ1IjoicGlnZW9uZ3UiLCJhIjoiY2szNWZreTh6MDkzMDNjbXlyeDU5NzNjNyJ9.nG5xl3rGGzmLGDDhexrtZA",
-      //"https://api.mapbox.com/styles/v1/ccall/cju4omhh623za1flgiymq3do0/tiles/256/{z}/{x}/{y}@2x?access_token=pk.eyJ1IjoiY2NhbGwiLCJhIjoiY2p1NG9qemVhMTAxazQ0cDg1NWoweW5kYSJ9.f45ljFqvaHsgWlC1VjJ-Iw",
       {
         maxZoom: 15,
         minZoom: 2,
@@ -108,13 +137,13 @@ export class MapComponent implements OnInit {
         id: "mapbox.streets",
         accessToken:
           "pk.eyJ1IjoicGlnZW9uZ3UiLCJhIjoiY2szNWZreTh6MDkzMDNjbXlyeDU5NzNjNyJ9.nG5xl3rGGzmLGDDhexrtZA"
-        //"pk.eyJ1IjoicWllbiIsImEiOiJjanJ3aWg5ajAwZDVkNDlvOXF6OWh3dGJ3In0.ewZYRX60IgGsmtsGIffdfQ"
       }
     ).addTo(map);
+
     function removeAllState() {
-      map.removeLayer(IL_state);
-      map.removeLayer(OH_state);
-      map.removeLayer(OR_state);
+      map.removeLayer(ILState);
+      map.removeLayer(OHState);
+      map.removeLayer(ORState);
     }
 
     /*
@@ -142,21 +171,6 @@ export class MapComponent implements OnInit {
       }
     });*/
 
-    /*
-    L.tileLayer(
-      "https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token=pk.eyJ1IjoibWFwYm94IiwiYSI6ImNpejY4NXVycTA2emYycXBndHRqcmZ3N3gifQ.rJcFIG214AriISLbB6B5aw",
-      {
-        maxZoom: 18,
-        attribution:
-          'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors, ' +
-          '<a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, ' +
-          'Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',
-        id: "mapbox.light",
-        accessToken:
-          "pk.eyJ1IjoicGlnZW9uZ3UiLCJhIjoiY2szNWZreTh6MDkzMDNjbXlyeDU5NzNjNyJ9.nG5xl3rGGzmLGDDhexrtZA"
-      }
-    ).addTo(map);*/
-
     // control that shows state info on hover
     var info = L.control();
 
@@ -165,6 +179,7 @@ export class MapComponent implements OnInit {
       this.update();
       return this._div;
     };
+
     enum Info {
       Total,
       White,
@@ -218,10 +233,10 @@ export class MapComponent implements OnInit {
       let other = 0;
       let two_race = 0;
       if (props != undefined) {
-        console.log("props: ", props.STATEFP);
+        // console.log("props: ", props.STATEFP);
         let state = props.STATEFP;
         id = props.CD116FP;
-        console.log("props id: ", props.CD116FP);
+        //console.log("props id: ", props.CD116FP);
         if (state == or) {
           total = OR_district_info[id - 1][Info.Total];
           white = OR_district_info[id - 1][Info.White];
@@ -252,14 +267,13 @@ export class MapComponent implements OnInit {
         }
       }
 
-      this._div.innerHTML =
-        "<h4>Voting Data</h4>" +
-        (props && props.name != undefined
+      this._div.innerHTML = `<h4>Population Data</h4> ${
+        props && props.name != undefined
           ? "<b>" + props.name + "</b><br />"
           : "ID: " +
             (id == 0 ? "" : id) +
             "<br />" +
-            "total votes : " +
+            "total population : " +
             (total == 0 ? "" : total) +
             "<br/>" +
             "White : " +
@@ -282,19 +296,29 @@ export class MapComponent implements OnInit {
             "<br/>" +
             "Mixed Race : " +
             (two_race == 0 ? "" : two_race) +
-            "<br/>");
+            "<br/>"
+      }`;
     };
 
     info.addTo(map);
 
     function style(feature) {
-      //   console.log("feature: ", feature);
+      //console.log("color: ", feature.properties);
+      let state = feature.properties.STATEFP;
+      let or = 41;
+      let il = 17;
+      let oh = 39;
+      let id = feature.properties.CD116FP;
+      let color = "white";
+      if (state == or) {
+        color = feature.properties.votes.color;
+      }
       return {
         weight: 1,
         opacity: 1,
-        color: "white",
+        color: "black",
         fillOpacity: 0.7,
-        fillColor: feature.properties.COLOR
+        fillColor: color
         /*
         weight: 2,
         opacity: 1,
@@ -348,60 +372,63 @@ export class MapComponent implements OnInit {
       info.update();
     }
 
+    function selectILDistrict() {
+      selectedState = "Illinois";
+      map.removeLayer(ILState);
+      map.removeLayer(ORDistrict);
+      map.removeLayer(ORPrecinct);
+      map.removeLayer(OHDistrict);
+
+      map.addLayer(ILDistrict);
+      map.addLayer(OHState);
+      map.addLayer(ORState);
+    }
+
+    function selectORDistrict() {
+      selectedState = "Oregon";
+      map.removeLayer(ORState);
+      map.removeLayer(ILDistrict);
+      map.removeLayer(ILPrecinct);
+      map.removeLayer(OHDistrict);
+      //       map.removeLayer(OH_precinct);
+
+      map.addLayer(ORDistrict);
+      map.addLayer(ILState);
+      map.addLayer(OHState);
+    }
+
+    function selectOHDistrict() {
+      selectedState = "Ohio";
+      map.removeLayer(OHState);
+      map.removeLayer(ORDistrict);
+      map.removeLayer(ORPrecinct);
+      map.removeLayer(ILDistrict);
+      map.removeLayer(ILPrecinct);
+
+      map.addLayer(OHDistrict);
+      map.addLayer(ORState);
+      map.addLayer(ILState);
+    }
+
     function zoomToFeature(e) {
       let name = e.target.feature.properties.name;
-      console.log("name:  ", name);
-      let test = e.target.feature.properties.CD116FP;
-      console.log("test", test);
-
-      if (name === "Illinois") {
-        selectedState = "Illinois";
-        //console.log("selected state: ", selectedState);
-        map.removeLayer(IL_state);
-        map.removeLayer(OR_district);
-        map.removeLayer(OR_precinct);
-        map.removeLayer(OH_district);
-        //map.removeLayer(OH_precinct);
-
-        map.addLayer(IL_district);
-        map.addLayer(OH_state);
-        map.addLayer(OR_state);
+      if (name == "Illinois") {
+        selectILDistrict();
       } else if (name == "Oregon") {
-        selectedState = "Oregon";
-        //console.log("selected state: ", selectedState);
-        map.removeLayer(OR_state);
-        map.removeLayer(IL_district);
-        map.removeLayer(IL_precinct);
-        map.removeLayer(OH_district);
-        //       map.removeLayer(OH_precinct);
-
-        map.addLayer(OR_district);
-        map.addLayer(IL_state);
-        map.addLayer(OH_state);
+        selectORDistrict();
       } else if (name == "Ohio") {
-        selectedState = "Ohio";
-        console.log("selected state: ", selectedState);
-        map.removeLayer(OH_state);
-        map.removeLayer(OR_district);
-        //map.removeLayer(OR_precinct);
-        map.removeLayer(IL_district);
-        map.removeLayer(IL_precinct);
-
-        map.addLayer(OH_district);
-        map.addLayer(OR_district);
-        map.addLayer(IL_state);
+        selectOHDistrict();
       } else if (name == undefined) {
-        console.log("name is undfeined: ", selectedState);
+        //distrcts doesn't have name, they only have id
         if (selectedState == "Illinois") {
-          map.removeLayer(IL_district);
-          map.addLayer(IL_precinct);
+          map.removeLayer(ILDistrict);
+          map.addLayer(ILPrecinct);
         } else if (selectedState == "Oregon") {
-          console.log("its or");
-          map.removeLayer(OR_district);
-          map.addLayer(OR_precinct);
+          map.removeLayer(ORDistrict);
+          map.addLayer(ORPrecinct);
+        } else if (selectedState == "Ohio") {
         }
       }
-
       map.fitBounds(e.target.getBounds());
     }
 
