@@ -11,13 +11,38 @@ import { WebsocketService } from "../websocket.service";
   styleUrls: ["./map.component.css"]
 })
 export class MapComponent implements OnInit {
-  constructor(private http: HttpClient, private socket: WebsocketService) {}
+  constructor(private http: HttpClient) {}
+
+  getDistrictURL = "http://192.168.1.57:8080/state/getDistrictData";
+
+  IL = "Illinois";
+  OH = "Ohio";
+  OR = "Oregon";
+
+  async loadDisctrictdata(year, stateName) {
+    let url = this.getDistrictURL;
+    let result = new Set();
+    let params = new HttpParams()
+      .set("year", year)
+      .set("state", stateName.toUpperCase());
+    this.http.get(url, { params: params }).subscribe((json: any) => {
+      Object.keys(json.result).forEach(index => {
+        let info = {
+          id: index,
+          population: json.result[index].population,
+          partyVotes: json.result[index].partyVotes
+        };
+        result.add(info);
+      });
+    });
+    return result;
+  }
 
   ngOnInit() {
+    const IL = this.IL;
+    const OH = this.OH;
+    const OR = this.OR;
     var map = L.map("map").setView([37.8, -96], 4);
-    const IL = "Illinois";
-    const OH = "Ohio";
-    const OR = "Oregon";
 
     enum SelectedYear {
       CONGRESSION2016,
@@ -25,8 +50,14 @@ export class MapComponent implements OnInit {
       PRESIDENTIANAL2016
     }
 
+    enum Votes {
+      DEMOCRATIC,
+      OTHERS,
+      REPUBLICAN
+    }
+
     var selectedState;
-    var ILState;
+    var ILState = L.geoJSON().addTo(map);
     var OHState;
     var ORState;
     var statesLayer;
@@ -45,16 +76,8 @@ export class MapComponent implements OnInit {
     loadILPrecinct();
     loadORPrecinct();
 
-    function loadIllinoisDisctrict(year) {
-      year = "CONGRESSION_2016";
-      let url = "http://localhost:8080/getDistrictData";
-      let params = new HttpParams()
-        .set("year", year)
-        .set("state", IL.toUpperCase());
-      this.HttpClient.get(url, { params: params }).subscribe((json: any) => {
-        console.log(json);
-      });
-    }
+    let year = "CONGRESSION_2016";
+    const ORDistrictInfo = this.loadDisctrictdata(year, OR);
 
     function loadStates() {
       ILState = L.geoJson.ajax(
@@ -160,38 +183,6 @@ export class MapComponent implements OnInit {
       }
     ).addTo(map);
 
-    /*
-    function removeAllState() {
-      map.removeLayer(ILState);
-      map.removeLayer(OHState);
-      map.removeLayer(ORState);
-    }
-
-  
-    map.on("zoomend", () => {
-      if (map.getZoom() > 6) {
-        if (selectedState == IL) {
-          map.removeLayer();
-          map.removeLayer();
-          map.addLayer();
-        } else if (selectedState == OH) {
-          map.removeLayer();
-          map.removeLayer();
-          map.addLayer();
-        } else if (selectedState === OR) {
-          map.removeLayer();
-          map.removeLayer();
-          map.addLayer();
-        }
-        removeAllState();
-      } else {
-        map.removeLayer();
-        map.removeLayer();
-        map.removeLayer();
-        map.addLayer();
-      }
-    });*/
-
     // control that shows state info on hover
     var info = L.control();
 
@@ -240,9 +231,9 @@ export class MapComponent implements OnInit {
     ];
 
     info.update = function(props) {
-      let or = 41;
-      let il = 17;
-      let oh = 39;
+      let or = StateID.OREGON;
+      let il = StateID.ILLINOIS;
+      let oh = StateID.OHIO;
       let id = 0;
 
       let total = 0;
