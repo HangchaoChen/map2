@@ -48,8 +48,12 @@ export class MapComponent implements OnInit {
     function loadIllinoisDisctrict(year) {
       year = "CONGRESSION_2016";
       let url = "http://localhost:8080/getDistrictData";
-      let params = new HttpParams().set("year", year).set("stateName", IL);
-      this.HttpClient.get(url, { params: params }).subscribe((json: any) => {});
+      let params = new HttpParams()
+        .set("year", year)
+        .set("state", IL.toUpperCase());
+      this.HttpClient.get(url, { params: params }).subscribe((json: any) => {
+        console.log(json);
+      });
     }
 
     function loadStates() {
