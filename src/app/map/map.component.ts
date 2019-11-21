@@ -1,5 +1,6 @@
+import { properties } from "ng-zorro-antd";
 import { Component, OnInit } from "@angular/core";
-import { HttpClient } from "@angular/common/http";
+import { HttpClient, HttpParams } from "@angular/common/http";
 import * as L from "leaflet";
 import "leaflet-ajax";
 import { WebsocketService } from "../websocket.service";
@@ -14,12 +15,16 @@ export class MapComponent implements OnInit {
 
   ngOnInit() {
     var map = L.map("map").setView([37.8, -96], 4);
-    enum stateName{
-      
+    const IL = "Illinois";
+    const OH = "Ohio";
+    const OR = "Oregon";
+
+    enum SelectedYear {
+      CONGRESSION2016,
+      CONGRESSION2018,
+      PRESIDENTIANAL2016
     }
-    var IL = "Illinois";
-    var OH = "Ohio";
-    var OR = "Oregon";
+
     var selectedState;
     var ILState;
     var OHState;
@@ -39,6 +44,13 @@ export class MapComponent implements OnInit {
     loadOHDistrict();
     loadILPrecinct();
     loadORPrecinct();
+
+    function loadIllinoisDisctrict(year) {
+      year = "CONGRESSION_2016";
+      let url = "http://localhost:8080/getDistrictData";
+      let params = new HttpParams().set("year", year).set("stateName", IL);
+      this.HttpClient.get(url, { params: params }).subscribe((json: any) => {});
+    }
 
     function loadStates() {
       ILState = L.geoJson.ajax(
@@ -85,9 +97,29 @@ export class MapComponent implements OnInit {
       );
     }
 
+    function loadILPrecinct() {
+      ILPrecinct = L.geoJson.ajax(
+        "https://raw.githubusercontent.com/HangchaoChen/States_GeoJSON/master/Illinois_geo.json",
+        {
+          style: style,
+          onEachFeature: onEachFeature
+        }
+      );
+    }
+
     function loadORDistrict() {
       ORDistrict = L.geoJson.ajax(
         "https://raw.githubusercontent.com/HangchaoChen/States_GeoJSON/master/Oregon_congressional_geo_processed.json",
+        {
+          style: style,
+          onEachFeature: onEachFeature
+        }
+      );
+    }
+
+    function loadORPrecinct() {
+      ORPrecinct = L.geoJson.ajax(
+        "https://raw.githubusercontent.com/HangchaoChen/States_GeoJSON/master/Oregon_geo_precinct_2016.json",
         {
           style: style,
           onEachFeature: onEachFeature
@@ -105,24 +137,8 @@ export class MapComponent implements OnInit {
       );
     }
 
-    function loadILPrecinct() {
-      ILPrecinct = L.geoJson.ajax(
-        "https://raw.githubusercontent.com/HangchaoChen/States_GeoJSON/master/Illinois_geo.json",
-        {
-          style: style,
-          onEachFeature: onEachFeature
-        }
-      );
-    }
-
-    function loadORPrecinct() {
-      ORPrecinct = L.geoJson.ajax(
-        "https://raw.githubusercontent.com/HangchaoChen/States_GeoJSON/master/Oregon_geo_precinct.json",
-        {
-          style: style,
-          onEachFeature: onEachFeature
-        }
-      );
+    function loadOHPrecinct() {
+      console.log("load Ohio Precinct");
     }
 
     L.tileLayer(
@@ -140,13 +156,14 @@ export class MapComponent implements OnInit {
       }
     ).addTo(map);
 
+    /*
     function removeAllState() {
       map.removeLayer(ILState);
       map.removeLayer(OHState);
       map.removeLayer(ORState);
     }
 
-    /*
+  
     map.on("zoomend", () => {
       if (map.getZoom() > 6) {
         if (selectedState == IL) {
@@ -302,17 +319,29 @@ export class MapComponent implements OnInit {
 
     info.addTo(map);
 
+    enum StateID {
+      ILLINOIS = 17,
+      OHIO = 39,
+      OREGON = 41
+    }
+
     function style(feature) {
-      //console.log("color: ", feature.properties);
+      //console.log("color: ", feature);
       let state = feature.properties.STATEFP;
-      let or = 41;
-      let il = 17;
-      let oh = 39;
-      let id = feature.properties.CD116FP;
       let color = "white";
-      if (state == or) {
+      if (state == StateID.OREGON) {
+        //console.log(color);
         color = feature.properties.votes.color;
       }
+      //console.log("pp:", feature.properties);
+      if (feature.properties.OROnly_P_1 == OR) {
+        if (feature.properties.OBJECTID < 1000) {
+          color = "red";
+        } else {
+          color = "blue";
+        }
+      }
+
       return {
         weight: 1,
         opacity: 1,
@@ -365,8 +394,6 @@ export class MapComponent implements OnInit {
       info.update(layer.feature.properties);
     }
 
-    //var geojson;
-
     function resetHighlight(e) {
       statesLayer.resetStyle(e.target);
       info.update();
@@ -413,20 +440,28 @@ export class MapComponent implements OnInit {
     function zoomToFeature(e) {
       let name = e.target.feature.properties.name;
       if (name == "Illinois") {
+        //loadILDistrict();
         selectILDistrict();
       } else if (name == "Oregon") {
+        //loadORDistrict();
         selectORDistrict();
       } else if (name == "Ohio") {
+        //loadOHDistrict();
         selectOHDistrict();
       } else if (name == undefined) {
         //distrcts doesn't have name, they only have id
         if (selectedState == "Illinois") {
+          //loadILPrecinct();
           map.removeLayer(ILDistrict);
           map.addLayer(ILPrecinct);
         } else if (selectedState == "Oregon") {
+          //loadORPrecinct();
           map.removeLayer(ORDistrict);
           map.addLayer(ORPrecinct);
         } else if (selectedState == "Ohio") {
+          //loadOHPrecinct();
+          map.removeLayer(OHDistrict);
+          map.addLayer(OHPrecinct);
         }
       }
       map.fitBounds(e.target.getBounds());
@@ -439,17 +474,6 @@ export class MapComponent implements OnInit {
         click: zoomToFeature
       });
     }
-
-    /*
-    geojson = L.geoJson
-      .ajax(
-        "https://raw.githubusercontent.com/HangchaoChen/States_GeoJSON/master/states_GeoJSON",
-        {
-          style: style,
-          onEachFeature: onEachFeature
-        }
-      )
-      .addTo(map);*/
 
     map.attributionControl.addAttribution(
       'Population data &copy; <a href="http://census.gov/">US Census Bureau</a>'
