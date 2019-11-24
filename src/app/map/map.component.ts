@@ -102,20 +102,21 @@ export class MapComponent implements OnInit {
     var ORState;
     var statesLayer;
     var ILDistrict;
-    var ORDistrict;
-    var OHDistrict;
     var ILPrecinct;
+    var ORDistrict;
     var ORPrecinct;
+    var OHDistrict;
     var OHPrecinct;
 
     loadStates();
 
     loadILDistrict();
-    loadORDistrict();
-    loadOHDistrict();
     loadILPrecinct();
+    loadORDistrict();
     loadORPrecinct();
-
+    loadOHDistrict();
+    //loadOHPrecinct();
+    loadOHPrecinct();
     /*
     selectAState(OH);
 
@@ -125,10 +126,10 @@ export class MapComponent implements OnInit {
         map.flyToBounds(layer);
       });
     }*/
-
+    /*
     let year = "CONGRESSION_2016";
     const ORDistrictInfo = this.loadDisctrictdata(year, OR);
-    console.log("test loaded data:", ORDistrict);
+    console.log("test loaded data:", ORDistrict);*/
 
     async function loadStates() {
       ILState = L.geoJson.ajax(
@@ -220,7 +221,13 @@ export class MapComponent implements OnInit {
     }
 
     function loadOHPrecinct() {
-      console.log("load Ohio Precinct");
+      OHPrecinct = L.geoJson.ajax(
+        "https://raw.githubusercontent.com/HangchaoChen/States_GeoJSON/master/OH_map_data.json",
+        {
+          style: style,
+          onEachFeature: onEachFeature
+        }
+      );
     }
 
     L.tileLayer(
@@ -289,21 +296,25 @@ export class MapComponent implements OnInit {
       let or = StateID.OREGON;
       let il = StateID.ILLINOIS;
       let oh = StateID.OHIO;
-      let id = 0;
+      let id = -1;
 
-      let total = 0;
-      let white = 0;
-      let black = 0;
-      let indian = 0;
-      let asian = 0;
-      let hawaiian = 0;
-      let other = 0;
-      let two_race = 0;
-      let republic = 0;
-      let democratic = 0;
+      let total = -1;
+      let white = -1;
+      let black = -1;
+      let indian = -1;
+      let asian = -1;
+      let hawaiian = -1;
+      let other = -1;
+      let two_race = -1;
+      let republic = -1;
+      let democratic = -1;
       if (props != undefined) {
         let state = props.STATEFP;
+        //console.log("props: ", props);
         id = props.CD116FP;
+        if (id == undefined) {
+          id = props.id;
+        }
         if (state == or) {
           total = OR_district_info[id - 1][Info.Total];
           white = OR_district_info[id - 1][Info.White];
@@ -334,34 +345,36 @@ export class MapComponent implements OnInit {
       }
 
       this._div.innerHTML = `<h4>Population Data</h4> ${
-        props && props.name != undefined
+        props &&
+        props.name != undefined &&
+        (props.name == OH || props.name == IL || props.name == OR)
           ? "<b>" + props.name + "</b><br />"
           : "ID: " +
-            (id == 0 ? "" : id) +
+            (id == -1 ? "" : id) +
             "<br />" +
             "total population : " +
-            (total == 0 ? "" : total) +
+            (total == -1 ? "" : total) +
             "<br/>" +
             "White : " +
-            (white == 0 ? "" : white) +
+            (white == -1 ? "" : white) +
             "<br/>" +
             "Black & African American : " +
-            (black == 0 ? "" : black) +
+            (black == -1 ? "" : black) +
             "<br/>" +
             "American Indian: " +
-            (indian == 0 ? "" : indian) +
+            (indian == -1 ? "" : indian) +
             "<br/>" +
             "Asian : " +
-            (asian == 0 ? "" : asian) +
+            (asian == -1 ? "" : asian) +
             "<br/>" +
             "Native Hawaiian: " +
-            (hawaiian == 0 ? "" : hawaiian) +
+            (hawaiian == -1 ? "" : hawaiian) +
             "<br/>" +
             "Other : " +
-            (other == 0 ? "" : other) +
+            (other == -1 ? "" : other) +
             "<br/>" +
             "Mixed Race : " +
-            (two_race == 0 ? "" : two_race) +
+            (two_race == -1 ? "" : two_race) +
             "<br/>"
       }`;
     };
@@ -448,6 +461,7 @@ export class MapComponent implements OnInit {
       map.removeLayer(ORDistrict);
       map.removeLayer(ORPrecinct);
       map.removeLayer(OHDistrict);
+      map.removeLayer(OHPrecinct);
 
       map.addLayer(ILDistrict);
       map.addLayer(OHState);
@@ -460,7 +474,7 @@ export class MapComponent implements OnInit {
       map.removeLayer(ILDistrict);
       map.removeLayer(ILPrecinct);
       map.removeLayer(OHDistrict);
-      //       map.removeLayer(OH_precinct);
+      map.removeLayer(OHPrecinct);
 
       map.addLayer(ORDistrict);
       map.addLayer(ILState);
@@ -500,6 +514,7 @@ export class MapComponent implements OnInit {
         } else if (selectedState == "Oregon") {
           //loadORPrecinct();
           map.removeLayer(ORDistrict);
+          console.log("or : ", ORPrecinct);
           map.addLayer(ORPrecinct);
         } else if (selectedState == "Ohio") {
           //loadOHPrecinct();
@@ -507,7 +522,6 @@ export class MapComponent implements OnInit {
           map.addLayer(OHPrecinct);
         }
       }
-      console.log("e.target : ", e.target.getBounds());
       map.fitBounds(e.target.getBounds());
     }
 

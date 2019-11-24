@@ -17,6 +17,7 @@ import { RadarComponent } from "./radar/radar.component";
 //charts
 import { ChartsModule } from "ng2-charts";
 import { PhaseZeroSettingComponent } from './phase-zero-setting/phase-zero-setting.component';
+import { TableComponent } from './table/table.component';
 registerLocaleData(en);
 
 @NgModule({
@@ -26,7 +27,8 @@ registerLocaleData(en);
     SiderComponent,
     SettingComponent,
     RadarComponent,
-    PhaseZeroSettingComponent
+    PhaseZeroSettingComponent,
+    TableComponent
   ],
   imports: [
     BrowserModule,
