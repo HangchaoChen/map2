@@ -1,0 +1,31 @@
+<ul nz-menu nzMode="inline">
+  <li nz-menu-group nzTitle="Year Selection">
+    <ul>
+      <nz-select [(ngModel)]="selectedYear" nzAllowClear nzPlaceHolder="Choose a year">
+        <nz-option nzValue="2016 Congressional" nzLabel="2016 Congressional"></nz-option>
+        <nz-option nzValue="2018 Congressional" nzLabel="2018 Congressional"></nz-option>
+        <nz-option nzValue="2016 Presidential" nzLabel=" 2016 Presidential"></nz-option>
+      </nz-select>
+    </ul>
+  </li>
+  <li nz-menu-group nzTitle="Population Threshold">
+    <ul>
+      <nz-input-number [(ngModel)]="polulationThreshold" [nzFormatter]="formatterPercent" [nzMin]="0" [nzMax]="100"
+        [nzStep]="1">
+      </nz-input-number>
+    </ul>
+  </li>
+  <li nz-menu-group nzTitle="Party Threshold">
+    <ul>
+      <nz-input-number [(ngModel)]="partyThreshold" [nzFormatter]="formatterPercent" [nzMin]="0" [nzMax]="100"
+        [nzStep]="1">
+      </nz-input-number>
+    </ul>
+  </li>
+  <br />
+  <li nz-menu-item>
+    <button nz-button nzType="primary" [nzSize]="large" nzShape="round" (click)="onClickApply()">
+      Phase 0
+    </button>
+  </li>
+</ul>

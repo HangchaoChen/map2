@@ -1,13 +1,33 @@
 <ul nz-menu nzTheme="dark" nzMode="inline" [nzInlineCollapsed]="true">
+  <li nz-menu-item nz-tooltip nzPlacement="right" [nzTitle]="'Select State'">
+    <a nz-dropdown nzTrigger="click" [nzDropdownMenu]="menu">
+      <i nz-icon nzType="menu"></i>
+    </a>
+    <nz-dropdown-menu #menu="nzDropdownMenu">
+      <ul nz-menu>
+        <li nz-menu-item (click)="onSelectState('Ohio')">Ohio</li>
+        <li nz-menu-item (click)="onSelectState('Oregon')">Oregon</li>
+        <li nz-menu-item (click)="onSelectState('Illinois')">Illinois</li>
+      </ul>
+    </nz-dropdown-menu>
+  </li>
+  <li nz-menu-item nz-tooltip nzPlacement="right" [nzTitle]="'Phase 0 settings'" (click)="showP0Settings()">
+    <i nz-icon nzType="setting"></i>
   <li nz-menu-item nz-tooltip nzPlacement="right" [nzTitle]="'Settings'" (click)="showSettings()">
     <i nz-icon nzType="setting"></i>
   <li nz-menu-item nz-tooltip nzPlacement="right" [nzTitle]="'Tables'" (click)="showTables()">
     <i nz-icon nzType="table"></i>
   </li>
 </ul>
-<!-- settings starts here-->
+<!-- Algorithm setting drawer-->
 <nz-drawer [nzClosable]="false" [nzVisible]="openSetting" nzPlacement="left" nzTitle="Algorithm Settings"
   (nzOnClose)="closeSettings()">
   <app-setting>
   </app-setting>
+</nz-drawer>
+
+<nz-drawer [nzClosable]="false" [nzVisible]="openP0Setting" nzPlacement="left" nzTitle="Phase 0 Settings"
+  (nzOnClose)="closeP0Settings()">
+  <app-phase-zero-setting>
+  </app-phase-zero-setting>
 </nz-drawer>

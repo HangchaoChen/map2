@@ -1,5 +1,6 @@
+import { MapService } from "./../map.service";
 import { properties } from "ng-zorro-antd";
-import { Component, OnInit } from "@angular/core";
+import { Component, OnInit, Input } from "@angular/core";
 import { HttpClient, HttpParams } from "@angular/common/http";
 import * as L from "leaflet";
 import "leaflet-ajax";
@@ -11,21 +12,25 @@ import { WebsocketService } from "../websocket.service";
   styleUrls: ["./map.component.css"]
 })
 export class MapComponent implements OnInit {
-  constructor(private http: HttpClient) {}
+  @Input() selectedState: String;
 
-  getDistrictURL = "http://192.168.1.57:8080/state/getDistrictData";
+  constructor(private http: HttpClient, private mapService: MapService) {}
+
+  getDistrictURL = "http://localhost:8080/state/getDistrictData";
 
   IL = "Illinois";
   OH = "Ohio";
   OR = "Oregon";
 
+  stateName;
+
   async loadDisctrictdata(year, stateName) {
     let url = this.getDistrictURL;
     let result = new Set();
     let params = new HttpParams()
-      .set("year", year)
+      .set("year", year) // change back to year when backend updated
       .set("state", stateName.toUpperCase());
-    this.http.get(url, { params: params }).subscribe((json: any) => {
+    await this.http.get(url, { params: params }).subscribe((json: any) => {
       Object.keys(json.result).forEach(index => {
         let info = {
           id: index,
@@ -39,10 +44,44 @@ export class MapComponent implements OnInit {
   }
 
   ngOnInit() {
+    this.mapService.selectedState.subscribe(stateName => {
+      console.log("user selected from dropdown: ", stateName);
+      if (stateName == this.OH) {
+        selectedState = OH;
+        statesLayer.eachLayer(layer => {
+          if (layer.feature.properties.name == stateName) {
+            selectOHDistrict();
+            map.flyToBounds(layer);
+          }
+        });
+      } else if (stateName == this.IL) {
+        selectedState = IL;
+        statesLayer.eachLayer(layer => {
+          if (layer.feature.properties.name == stateName) {
+            selectILDistrict();
+            map.flyToBounds(layer);
+          }
+        });
+      } else if (stateName == this.OR) {
+        selectedState = IL;
+        statesLayer.eachLayer(layer => {
+          if (layer.feature.properties.name == stateName) {
+            selectORDistrict();
+            map.flyToBounds(layer);
+          }
+        });
+      }
+    });
+
     const IL = this.IL;
     const OH = this.OH;
     const OR = this.OR;
-    var map = L.map("map").setView([37.8, -96], 4);
+
+    enum StateID {
+      ILLINOIS = 17,
+      OHIO = 39,
+      OREGON = 41
+    }
 
     enum SelectedYear {
       CONGRESSION2016,
@@ -55,9 +94,10 @@ export class MapComponent implements OnInit {
       OTHERS,
       REPUBLICAN
     }
+    var map = L.map("map").setView([37.8, -96], 4);
 
     var selectedState;
-    var ILState = L.geoJSON().addTo(map);
+    var ILState;
     var OHState;
     var ORState;
     var statesLayer;
@@ -76,10 +116,21 @@ export class MapComponent implements OnInit {
     loadILPrecinct();
     loadORPrecinct();
 
+    /*
+    selectAState(OH);
+
+    function selectAState(stateName) {
+      console.log("state name:", statesLayer.getLayers());
+      statesLayer.eachLayer(layer => {
+        map.flyToBounds(layer);
+      });
+    }*/
+
     let year = "CONGRESSION_2016";
     const ORDistrictInfo = this.loadDisctrictdata(year, OR);
+    console.log("test loaded data:", ORDistrict);
 
-    function loadStates() {
+    async function loadStates() {
       ILState = L.geoJson.ajax(
         "https://raw.githubusercontent.com/HangchaoChen/States_GeoJSON/9f6e99027ae9af858c8135cbe21da3f0fa3d11bf/IL_state",
         {
@@ -112,6 +163,10 @@ export class MapComponent implements OnInit {
           onEachFeature: onEachFeature
         }
       );
+      //statesLayer.addLayer(ILState);
+      //statesLayer.addLayer(OHState);
+      //statesLayer.addLayer(ORState);
+      //map.addLayer(statesLayer);
     }
 
     function loadILDistrict() {
@@ -244,11 +299,11 @@ export class MapComponent implements OnInit {
       let hawaiian = 0;
       let other = 0;
       let two_race = 0;
+      let republic = 0;
+      let democratic = 0;
       if (props != undefined) {
-        // console.log("props: ", props.STATEFP);
         let state = props.STATEFP;
         id = props.CD116FP;
-        //console.log("props id: ", props.CD116FP);
         if (state == or) {
           total = OR_district_info[id - 1][Info.Total];
           white = OR_district_info[id - 1][Info.White];
@@ -262,7 +317,6 @@ export class MapComponent implements OnInit {
           other = OR_district_info[id - 1][Info.Some_Other_Race];
           two_race = OR_district_info[id - 1][Info.Two_or_more_races];
         } else if (state == il) {
-          //console.log("it's illinios");
         } else if (state == oh) {
           //console.log("it's ohio");
           total = OH_district_info[id - 1][Info.Total];
@@ -313,12 +367,6 @@ export class MapComponent implements OnInit {
     };
 
     info.addTo(map);
-
-    enum StateID {
-      ILLINOIS = 17,
-      OHIO = 39,
-      OREGON = 41
-    }
 
     function style(feature) {
       //console.log("color: ", feature);
@@ -459,6 +507,7 @@ export class MapComponent implements OnInit {
           map.addLayer(OHPrecinct);
         }
       }
+      console.log("e.target : ", e.target.getBounds());
       map.fitBounds(e.target.getBounds());
     }
 
