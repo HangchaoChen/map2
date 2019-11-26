@@ -46,6 +46,7 @@ export class SiderComponent implements OnInit {
 
   ngOnInit() {
     this.mapService.selectedState.subscribe(stateName => {
+      //console.log("state name changed")
       this.stateName = stateName;
     });
   }

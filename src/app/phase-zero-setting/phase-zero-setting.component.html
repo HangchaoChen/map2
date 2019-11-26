@@ -2,9 +2,9 @@
   <li nz-menu-group nzTitle="Year Selection">
     <ul>
       <nz-select [(ngModel)]="selectedYear" nzAllowClear nzPlaceHolder="Choose a year">
-        <nz-option nzValue="2016 Congressional" nzLabel="2016 Congressional"></nz-option>
-        <nz-option nzValue="2018 Congressional" nzLabel="2018 Congressional"></nz-option>
-        <nz-option nzValue="2016 Presidential" nzLabel=" 2016 Presidential"></nz-option>
+        <nz-option nzValue="CONGRESSION_2016" nzLabel="2016 Congressional"></nz-option>
+        <nz-option nzValue="CONGRESSION_2018" nzLabel="2018 Congressional"></nz-option>
+        <nz-option nzValue="PRESIDENTIANAL_2016" nzLabel=" 2016 Presidential"></nz-option>
       </nz-select>
     </ul>
   </li>
@@ -35,7 +35,7 @@
   </li>
 </ul>
 <nz-drawer [nzBodyStyle]="{ height: 'calc(100% - 55px)', overflow: 'auto' }" [nzMaskClosable]="false" [nzWidth]="730"
-  [nzVisible]="showTable" nzTitle="Create" (nzOnClose)="onTableClose()">
+  [nzVisible]="showTable" nzTitle="Table" (nzOnClose)="onTableClose()">
   <nz-table #basicTable [nzData]="listOfData">
     <thead>
       <tr>

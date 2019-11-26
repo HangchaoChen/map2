@@ -1,5 +1,6 @@
 import { HttpClient, HttpParams } from "@angular/common/http";
 import { Component, OnInit } from "@angular/core";
+import { MapService } from "../map.service";
 
 @Component({
   selector: "app-phase-zero-setting",
@@ -7,9 +8,10 @@ import { Component, OnInit } from "@angular/core";
   styleUrls: ["./phase-zero-setting.component.css"]
 })
 export class PhaseZeroSettingComponent implements OnInit {
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient, private mapService: MapService) {}
 
   showTable = false;
+  stateName: string;
 
   onTableOpen(): void {
     this.showTable = true;
@@ -36,22 +38,28 @@ export class PhaseZeroSettingComponent implements OnInit {
   listOfData;
 
   onClickApply() {
-    console.log(this.selectedYear);
-    console.log(this.polulationThreshold);
-    console.log(this.partyThreshold);
+    console.log("year", this.selectedYear);
+    console.log("poluation t ", this.polulationThreshold / 100);
+    console.log(" party t ", this.partyThreshold / 100);
+    console.log("state name: ", this.stateName.toLowerCase());
     console.log("calling post ");
     let url = "http://localhost:8080/setting/phase0";
     let params = new HttpParams()
-      .set("stateName", "ohio")
-      .set("election", "CONGRESSION_2018") // change back to year when backend updated
-      .set("populationThreshold", "0.3")
-      .set("blocThreshold", "0.2");
+      .set("stateName", this.stateName.toLowerCase())
+      .set("election", this.selectedYear)
+      .set("populationThreshold", "" + this.polulationThreshold / 100)
+      .set("blocThreshold", "" + this.partyThreshold / 100);
     this.http.get(url, { params: params }).subscribe((json: any) => {
       console.log("done: ", json);
+      this.listOfData = json.result["Eligible Blocs"];
     });
   }
 
   ngOnInit() {
     this.loadP0data();
+
+    this.mapService.selectedState.subscribe(stateName => {
+      this.stateName = stateName;
+    });
   }
 }

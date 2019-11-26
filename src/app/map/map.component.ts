@@ -43,7 +43,14 @@ export class MapComponent implements OnInit {
     return result;
   }
 
+  changeState(stateName) {
+    this.mapService.changeState(stateName);
+  }
+
   ngOnInit() {
+    let changeState = stateName => {
+      this.changeState(stateName);
+    };
     this.mapService.selectedState.subscribe(stateName => {
       console.log("user selected from dropdown: ", stateName);
       if (stateName == this.OH) {
@@ -498,13 +505,16 @@ export class MapComponent implements OnInit {
       let name = e.target.feature.properties.name;
       if (name == "Illinois") {
         //loadILDistrict();
-        selectILDistrict();
+        changeState(IL);
+        //selectILDistrict();
       } else if (name == "Oregon") {
         //loadORDistrict();
-        selectORDistrict();
+        changeState(OR);
+        //selectORDistrict();
       } else if (name == "Ohio") {
         //loadOHDistrict();
-        selectOHDistrict();
+        changeState(OH);
+        //selectOHDistrict();
       } else if (name == undefined) {
         //distrcts doesn't have name, they only have id
         if (selectedState == "Illinois") {
@@ -514,7 +524,7 @@ export class MapComponent implements OnInit {
         } else if (selectedState == "Oregon") {
           //loadORPrecinct();
           map.removeLayer(ORDistrict);
-          console.log("or : ", ORPrecinct);
+          //console.log("or : ", ORPrecinct);
           map.addLayer(ORPrecinct);
         } else if (selectedState == "Ohio") {
           //loadOHPrecinct();
