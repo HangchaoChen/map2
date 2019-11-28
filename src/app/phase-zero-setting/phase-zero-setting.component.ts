@@ -38,11 +38,11 @@ export class PhaseZeroSettingComponent implements OnInit {
   listOfData;
 
   onClickApply() {
-    console.log("year", this.selectedYear);
-    console.log("poluation t ", this.polulationThreshold / 100);
-    console.log(" party t ", this.partyThreshold / 100);
-    console.log("state name: ", this.stateName.toLowerCase());
-    console.log("calling post ");
+    // console.log("year", this.selectedYear);
+    // console.log("poluation t ", this.polulationThreshold / 100);
+    // console.log(" party t ", this.partyThreshold / 100);
+    // console.log("state name: ", this.stateName.toLowerCase());
+    // console.log("calling post ");
     let url = "http://localhost:8080/setting/phase0";
     let params = new HttpParams()
       .set("stateName", this.stateName.toLowerCase())
@@ -50,7 +50,7 @@ export class PhaseZeroSettingComponent implements OnInit {
       .set("populationThreshold", "" + this.polulationThreshold / 100)
       .set("blocThreshold", "" + this.partyThreshold / 100);
     this.http.get(url, { params: params }).subscribe((json: any) => {
-      console.log("done: ", json);
+      //console.log("done: ", json);
       this.listOfData = json.result["Eligible Blocs"];
     });
   }
