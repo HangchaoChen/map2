@@ -31,7 +31,7 @@ export class MapComponent implements OnInit {
       .set("year", year) // change back to year when backend updated
       .set("state", stateName.toUpperCase());
     await this.http.get(url, { params: params }).subscribe((json: any) => {
-      Object.keys(json.result).forEach(index => {
+      Object.keys(json.result).forEach((index) => {
         let info = {
           id: index,
           population: json.result[index].population,
@@ -48,14 +48,14 @@ export class MapComponent implements OnInit {
   }
 
   ngOnInit() {
-    let changeState = stateName => {
+    let changeState = (stateName) => {
       this.changeState(stateName);
     };
-    this.mapService.selectedState.subscribe(stateName => {
+    this.mapService.selectedState.subscribe((stateName) => {
       // console.log("user selected from dropdown: ", stateName);
       if (stateName == this.OH) {
         selectedState = OH;
-        statesLayer.eachLayer(layer => {
+        statesLayer.eachLayer((layer) => {
           if (layer.feature.properties.name == stateName) {
             selectOHDistrict();
             map.flyToBounds(layer, { maxZoom: 6 });
@@ -63,7 +63,7 @@ export class MapComponent implements OnInit {
         });
       } else if (stateName == this.IL) {
         selectedState = IL;
-        statesLayer.eachLayer(layer => {
+        statesLayer.eachLayer((layer) => {
           if (layer.feature.properties.name == stateName) {
             selectILDistrict();
             map.flyToBounds(layer, { maxZoom: 6 });
@@ -71,7 +71,7 @@ export class MapComponent implements OnInit {
         });
       } else if (stateName == this.OR) {
         selectedState = IL;
-        statesLayer.eachLayer(layer => {
+        statesLayer.eachLayer((layer) => {
           if (layer.feature.properties.name == stateName) {
             selectORDistrict();
             map.flyToBounds(layer, { maxZoom: 6 });
@@ -438,10 +438,23 @@ export class MapComponent implements OnInit {
       let democratic = -1;
       if (props != undefined) {
         let state = props.STATEFP;
-        //console.log("props: ", props);
+        console.log("props: ", props);
         id = props.CD116FP;
         if (id == undefined) {
           id = props.id;
+        }
+        if (props.name == OH || props.name == IL || props.name == OR) {
+          total = parseInt(props.demographic["Total"]);
+          white = parseInt(props.demographic["White"]);
+          black = parseInt(props.demographic["Black or African American"]);
+          indian = parseInt(
+            props.demographic["American Indian and Alaska Native"]
+          );
+          asian = parseInt(props.demographic["Asian"]);
+          other = parseInt(props.demographic["Some Other Race"]);
+          two_race = parseInt(props.demographic["Two or more races"]);
+          republic = parseInt(props.vote.republican);
+          democratic = parseInt(props.vote.democratic);
         }
         if (state == or) {
           total = parseInt(props.demographic["Total"]);
@@ -453,6 +466,8 @@ export class MapComponent implements OnInit {
           asian = parseInt(props.demographic["Asian"]);
           other = parseInt(props.demographic["Some Other Race"]);
           two_race = parseInt(props.demographic["Two or more races"]);
+          republic = parseInt(props.vote.republican.Votes);
+          democratic = parseInt(props.vote.democratic.Votes);
         } else if (state == il) {
           total = parseInt(props.demographic["Total"]);
           white = parseInt(props.demographic["White"]);
@@ -463,6 +478,8 @@ export class MapComponent implements OnInit {
           asian = parseInt(props.demographic["Asian"]);
           other = parseInt(props.demographic["Some Other Race"]);
           two_race = parseInt(props.demographic["Two or more races"]);
+          republic = parseInt(props.vote.republican.Votes);
+          democratic = parseInt(props.vote.democratic.Votes);
         } else if (state == oh) {
           total = parseInt(props.demographic["Total"]);
           white = parseInt(props.demographic["White"]);
@@ -473,14 +490,50 @@ export class MapComponent implements OnInit {
           asian = parseInt(props.demographic["Asian"]);
           other = parseInt(props.demographic["Some Other Race"]);
           two_race = parseInt(props.demographic["Two or more races"]);
+          republic = parseInt(props.vote.republican.Votes);
+          democratic = parseInt(props.vote.democratic.Votes);
         }
       }
 
-      this._div.innerHTML = `<h4>Population Data</h4> ${
+      this._div.innerHTML = `<h4>Demographic Data</h4> ${
         props &&
         props.name != undefined &&
         (props.name == OH || props.name == IL || props.name == OR)
-          ? "<b>" + props.name + "</b><br />"
+          ? "<b>" +
+            props.name +
+            "</b><br />" +
+            "total population : " +
+            (total == -1 ? "" : total) +
+            "<br/>" +
+            "White : " +
+            (white == -1 ? "" : white) +
+            "<br/>" +
+            "Black & African American : " +
+            (black == -1 ? "" : black) +
+            "<br/>" +
+            "American Indian: " +
+            (indian == -1 ? "" : indian) +
+            "<br/>" +
+            "Asian : " +
+            (asian == -1 ? "" : asian) +
+            "<br/>" +
+            "Native Hawaiian: " +
+            (hawaiian == -1 ? "" : hawaiian) +
+            "<br/>" +
+            "Other : " +
+            (other == -1 ? "" : other) +
+            "<br/>" +
+            "Mixed Race : " +
+            (two_race == -1 ? "" : two_race) +
+            "<br/>" +
+            "<br/>" +
+            "<h4>Voting data</h4>" +
+            "republican : " +
+            (republic == -1 ? "" : republic) +
+            "<br/>" +
+            "democratic : " +
+            (democratic == -1 ? "" : democratic) +
+            "<br/>"
           : "ID: " +
             (id == -1 ? "" : id) +
             "<br />" +
@@ -507,6 +560,14 @@ export class MapComponent implements OnInit {
             "<br/>" +
             "Mixed Race : " +
             (two_race == -1 ? "" : two_race) +
+            "<br/>" +
+            "<br/>" +
+            "<h4>Voting data</h4>" +
+            "republican : " +
+            (republic == -1 ? "" : republic) +
+            "<br/>" +
+            "democratic : " +
+            (democratic == -1 ? "" : democratic) +
             "<br/>"
       }`;
     };
