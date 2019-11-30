@@ -33,10 +33,45 @@
       Data Table
     </button>
   </li>
+  <li nz-menu-item>
+    <button nz-button nzType="primary" [nzSize]="size" nzShape="round" (click)="onDistrictTableOpen()">
+      View voting incumbents
+    </button>
+  </li>
 </ul>
+
 <nz-drawer [nzBodyStyle]="{ height: 'calc(100% - 55px)', overflow: 'auto' }" [nzMaskClosable]="false" [nzWidth]="730"
   [nzVisible]="showTable" nzTitle="Table" (nzOnClose)="onTableClose()">
   <nz-table #basicTable [nzData]="listOfData">
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Demographic Group</th>
+        <th>Percentage</th>
+        <th>Population</th>
+        <th>Total Votes</th>
+        <th>Winning Party</th>
+        <th>Winning Votes</th>
+        <th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let data of basicTable.data">
+        <td>{{ data.precinctIdd }}</td>
+        <td>{{ data.demographicGroup }}</td>
+        <td>{{ data.percentage }} </td>
+        <td>{{ data.population }} </td>
+        <td>{{ data.totalVotes}} </td>
+        <td>{{ data.winningParty }} </td>
+        <td>{{ data.winningVotes }}</td>
+      </tr>
+    </tbody>
+  </nz-table>
+</nz-drawer>
+
+<nz-drawer [nzBodyStyle]="{ height: 'calc(100% - 55px)', overflow: 'auto' }" [nzMaskClosable]="false" [nzWidth]="730"
+  [nzVisible]="showDistrictTable" nzTitle="Table" (nzOnClose)="onDistrictTableClose()">
+  <nz-table #basicTable2 [nzData]="listOfData">
     <thead>
       <tr>
         <th>ID</th>

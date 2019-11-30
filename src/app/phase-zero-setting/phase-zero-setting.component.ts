@@ -11,6 +11,7 @@ export class PhaseZeroSettingComponent implements OnInit {
   constructor(private http: HttpClient, private mapService: MapService) {}
 
   showTable = false;
+  showDistrictTable = false;
   stateName: string;
 
   onTableOpen(): void {
@@ -19,6 +20,14 @@ export class PhaseZeroSettingComponent implements OnInit {
 
   onTableClose(): void {
     this.showTable = false;
+  }
+
+  onDistrictTableOpen(): void {
+    this.showDistrictTable = true;
+  }
+
+  onDistrictTableClose(): void {
+    this.showDistrictTable = false;
   }
 
   selectedYear = "";

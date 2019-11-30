@@ -232,7 +232,7 @@ export class MapComponent implements OnInit {
 
     async function loadStates() {
       ILState = L.geoJson.ajax(
-        "https://raw.githubusercontent.com/HangchaoChen/States_GeoJSON/9f6e99027ae9af858c8135cbe21da3f0fa3d11bf/IL_state",
+        "https://raw.githubusercontent.com/HangchaoChen/States_GeoJSON/master/IL_state.json",
         {
           style: style,
           onEachFeature: onEachFeature
@@ -240,7 +240,7 @@ export class MapComponent implements OnInit {
       );
       map.addLayer(ILState);
       OHState = L.geoJson.ajax(
-        "https://raw.githubusercontent.com/HangchaoChen/States_GeoJSON/master/OH_state",
+        "https://raw.githubusercontent.com/HangchaoChen/States_GeoJSON/master/OH_state.json",
         {
           style: style,
           onEachFeature: onEachFeature
@@ -248,7 +248,7 @@ export class MapComponent implements OnInit {
       );
       map.addLayer(OHState);
       ORState = L.geoJson.ajax(
-        "https://raw.githubusercontent.com/HangchaoChen/States_GeoJSON/master/OR_state",
+        "https://raw.githubusercontent.com/HangchaoChen/States_GeoJSON/master/OR_state.json",
         {
           style: style,
           onEachFeature: onEachFeature
@@ -263,15 +263,11 @@ export class MapComponent implements OnInit {
           onEachFeature: onEachFeature
         }
       );
-      //statesLayer.addLayer(ILState);
-      //statesLayer.addLayer(OHState);
-      //statesLayer.addLayer(ORState);
-      //map.addLayer(statesLayer);
     }
 
     function loadILDistrict() {
       ILDistrict = L.geoJson.ajax(
-        "https://raw.githubusercontent.com/HangchaoChen/States_GeoJSON/master/Illinois_congressional_geo.json",
+        "https://raw.githubusercontent.com/HangchaoChen/States_GeoJSON/master/Illinois_congressional_geo_2018.json",
         {
           style: style,
           onEachFeature: onEachFeature
@@ -291,7 +287,7 @@ export class MapComponent implements OnInit {
 
     function loadORDistrict() {
       ORDistrict = L.geoJson.ajax(
-        "https://raw.githubusercontent.com/HangchaoChen/States_GeoJSON/master/Oregon_congressional_geo_processed.json",
+        "https://raw.githubusercontent.com/HangchaoChen/States_GeoJSON/master/Oregon_congressional_geo_2018.json",
         {
           style: style,
           onEachFeature: onEachFeature
@@ -311,7 +307,7 @@ export class MapComponent implements OnInit {
 
     function loadOHDistrict() {
       OHDistrict = L.geoJson.ajax(
-        "https://raw.githubusercontent.com/HangchaoChen/States_GeoJSON/master/Ohio_congressional_geo.json",
+        "https://raw.githubusercontent.com/HangchaoChen/States_GeoJSON/master/Ohio_congressional_geo_2018.json",
         {
           style: style,
           onEachFeature: onEachFeature
@@ -448,31 +444,35 @@ export class MapComponent implements OnInit {
           id = props.id;
         }
         if (state == or) {
-          total = OR_district_info[id - 1][Info.Total];
-          white = OR_district_info[id - 1][Info.White];
-          black = OR_district_info[id - 1][Info.Black_or_African_American];
-          indian =
-            OR_district_info[id - 1][Info.American_Indian_and_Alaska_Native];
-          asian =
-            OR_district_info[id - 1][
-              Info.Native_Hawaiian_and_Other_Pacific_Islander
-            ];
-          other = OR_district_info[id - 1][Info.Some_Other_Race];
-          two_race = OR_district_info[id - 1][Info.Two_or_more_races];
+          total = parseInt(props.demographic["Total"]);
+          white = parseInt(props.demographic["White"]);
+          black = parseInt(props.demographic["Black or African American"]);
+          indian = parseInt(
+            props.demographic["American Indian and Alaska Native"]
+          );
+          asian = parseInt(props.demographic["Asian"]);
+          other = parseInt(props.demographic["Some Other Race"]);
+          two_race = parseInt(props.demographic["Two or more races"]);
         } else if (state == il) {
+          total = parseInt(props.demographic["Total"]);
+          white = parseInt(props.demographic["White"]);
+          black = parseInt(props.demographic["Black or African American"]);
+          indian = parseInt(
+            props.demographic["American Indian and Alaska Native"]
+          );
+          asian = parseInt(props.demographic["Asian"]);
+          other = parseInt(props.demographic["Some Other Race"]);
+          two_race = parseInt(props.demographic["Two or more races"]);
         } else if (state == oh) {
-          //console.log("it's ohio");
-          total = OH_district_info[id - 1][Info.Total];
-          white = OH_district_info[id - 1][Info.White];
-          black = OH_district_info[id - 1][Info.Black_or_African_American];
-          indian =
-            OH_district_info[id - 1][Info.American_Indian_and_Alaska_Native];
-          asian =
-            OH_district_info[id - 1][
-              Info.Native_Hawaiian_and_Other_Pacific_Islander
-            ];
-          other = OH_district_info[id - 1][Info.Some_Other_Race];
-          two_race = OH_district_info[id - 1][Info.Two_or_more_races];
+          total = parseInt(props.demographic["Total"]);
+          white = parseInt(props.demographic["White"]);
+          black = parseInt(props.demographic["Black or African American"]);
+          indian = parseInt(
+            props.demographic["American Indian and Alaska Native"]
+          );
+          asian = parseInt(props.demographic["Asian"]);
+          other = parseInt(props.demographic["Some Other Race"]);
+          two_race = parseInt(props.demographic["Two or more races"]);
         }
       }
 
