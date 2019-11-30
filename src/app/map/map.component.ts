@@ -52,13 +52,13 @@ export class MapComponent implements OnInit {
       this.changeState(stateName);
     };
     this.mapService.selectedState.subscribe(stateName => {
-      console.log("user selected from dropdown: ", stateName);
+      // console.log("user selected from dropdown: ", stateName);
       if (stateName == this.OH) {
         selectedState = OH;
         statesLayer.eachLayer(layer => {
           if (layer.feature.properties.name == stateName) {
             selectOHDistrict();
-            map.flyToBounds(layer);
+            map.flyToBounds(layer, { maxZoom: 6 });
           }
         });
       } else if (stateName == this.IL) {
@@ -66,7 +66,7 @@ export class MapComponent implements OnInit {
         statesLayer.eachLayer(layer => {
           if (layer.feature.properties.name == stateName) {
             selectILDistrict();
-            map.flyToBounds(layer);
+            map.flyToBounds(layer, { maxZoom: 6 });
           }
         });
       } else if (stateName == this.OR) {
@@ -74,7 +74,7 @@ export class MapComponent implements OnInit {
         statesLayer.eachLayer(layer => {
           if (layer.feature.properties.name == stateName) {
             selectORDistrict();
-            map.flyToBounds(layer);
+            map.flyToBounds(layer, { maxZoom: 6 });
           }
         });
       }
@@ -115,6 +115,107 @@ export class MapComponent implements OnInit {
     var OHDistrict;
     var OHPrecinct;
 
+    var addedOHDistrict = false;
+    var addedORDistrict = false;
+    var addedILDistrict = false;
+    var addedOHPrecinct = false;
+    var addedORPrecinct = false;
+    var addedILPrecinct = false;
+
+    var colors = [
+      "Aquamarine",
+      "IndianRed",
+      "DeepSkyBlue",
+      "DarkSlateGray",
+      "BlueViolet",
+      "SlateGray",
+      "YellowGreen",
+      "Gray",
+      "DimGray",
+      "Silver",
+      "MistyRose",
+      "Azure",
+      "Olive",
+      "Peru",
+      "SandyBrown",
+      "Sienna",
+      "Cornsilk",
+      "Navy",
+      "CadetBlue",
+      "Gold",
+      "Moccasin",
+      "OrangeRed",
+      "Indigo",
+      "Fuchsia",
+      "HotPink"
+    ];
+
+    function addOHDistrict() {
+      if (addedOHPrecinct) {
+        map.removeLayer(OHPrecinct);
+        addedOHPrecinct = false;
+      }
+      if (!addedOHDistrict) {
+        map.addLayer(OHDistrict);
+        addedOHDistrict = true;
+      }
+    }
+
+    function addORDistrict() {
+      if (addedORPrecinct) {
+        map.removeLayer(ORPrecinct);
+        addedORPrecinct = false;
+      }
+      if (!addedORDistrict) {
+        map.addLayer(ORDistrict);
+        addedORDistrict = true;
+      }
+    }
+
+    function addILDistrict() {
+      if (addedILPrecinct) {
+        map.removeLayer(ILPrecinct);
+        addedILPrecinct = false;
+      }
+      if (!addedILDistrict) {
+        map.addLayer(ILDistrict);
+        addedILDistrict = true;
+      }
+    }
+
+    function addOHPrecinct() {
+      if (addedOHDistrict) {
+        map.removeLayer(OHDistrict);
+        addedOHDistrict = false;
+      }
+      if (!addedOHPrecinct) {
+        map.addLayer(OHPrecinct);
+        addedOHPrecinct = true;
+      }
+    }
+
+    function addORPrecinct() {
+      if (addedORDistrict) {
+        map.removeLayer(ORDistrict);
+        addedORDistrict = false;
+      }
+      if (!addedORPrecinct) {
+        map.addLayer(ORPrecinct);
+        addedORPrecinct = true;
+      }
+    }
+
+    function addILPrecinct() {
+      if (addedILDistrict) {
+        map.removeLayer(ILDistrict);
+        addedILDistrict = false;
+      }
+      if (!addedILPrecinct) {
+        map.addLayer(ILPrecinct);
+        addedILPrecinct = true;
+      }
+    }
+
     loadStates();
 
     loadILDistrict();
@@ -122,17 +223,8 @@ export class MapComponent implements OnInit {
     loadORDistrict();
     loadORPrecinct();
     loadOHDistrict();
-    //loadOHPrecinct();
     loadOHPrecinct();
-    /*
-    selectAState(OH);
 
-    function selectAState(stateName) {
-      console.log("state name:", statesLayer.getLayers());
-      statesLayer.eachLayer(layer => {
-        map.flyToBounds(layer);
-      });
-    }*/
     /*
     let year = "CONGRESSION_2016";
     const ORDistrictInfo = this.loadDisctrictdata(year, OR);
@@ -299,6 +391,39 @@ export class MapComponent implements OnInit {
       [719864, 662093, 21642, 1071, 15917, 45, 3737, 15359]
     ];
 
+    map.on("zoomend", () => {
+      console.log("zoom level :", map.getZoom());
+      if (map.getZoom() > 6) {
+        if (selectedState === OH) {
+          addOHPrecinct();
+        } else if (selectedState === OR) {
+          addORPrecinct();
+        } else if (selectedState === IL) {
+          addILPrecinct();
+        }
+      } else {
+        if (map.getZoom() <= 6 && map.getZoom() > 5) {
+          if (selectedState === OH) {
+            addOHDistrict();
+          } else if (selectedState === OR) {
+            addORDistrict();
+          } else if (selectedState === IL) {
+            addILDistrict();
+          }
+        } else if (map.getZoom() <= 5) {
+          map.removeLayer(OHDistrict);
+          addedOHDistrict = false;
+          map.removeLayer(ORDistrict);
+          addedORDistrict = false;
+          map.removeLayer(ILDistrict);
+          addedILDistrict = false;
+          map.addLayer(OHState);
+          map.addLayer(ORState);
+          map.addLayer(ILState);
+        }
+      }
+    });
+
     info.update = function(props) {
       let or = StateID.OREGON;
       let il = StateID.ILLINOIS;
@@ -391,7 +516,12 @@ export class MapComponent implements OnInit {
     function style(feature) {
       //console.log("color: ", feature);
       let state = feature.properties.STATEFP;
-      let color = "white";
+      let district = feature.properties.CD116FP;
+      let color = "White";
+      if (district !== undefined) {
+        color = colors[district - 1];
+      }
+      /*
       if (state == StateID.OREGON) {
         //console.log(color);
         color = feature.properties.votes.color;
@@ -403,7 +533,7 @@ export class MapComponent implements OnInit {
         } else {
           color = "blue";
         }
-      }
+      }*/
 
       return {
         weight: 1,
@@ -466,11 +596,16 @@ export class MapComponent implements OnInit {
       selectedState = "Illinois";
       map.removeLayer(ILState);
       map.removeLayer(ORDistrict);
+      addedORDistrict = false;
       map.removeLayer(ORPrecinct);
+      addedORPrecinct = false;
       map.removeLayer(OHDistrict);
+      addedOHDistrict = false;
       map.removeLayer(OHPrecinct);
+      addedOHPrecinct = false;
 
       map.addLayer(ILDistrict);
+      addedILDistrict = true;
       map.addLayer(OHState);
       map.addLayer(ORState);
     }
@@ -479,11 +614,16 @@ export class MapComponent implements OnInit {
       selectedState = "Oregon";
       map.removeLayer(ORState);
       map.removeLayer(ILDistrict);
+      addedILDistrict = false;
       map.removeLayer(ILPrecinct);
+      addedILPrecinct = false;
       map.removeLayer(OHDistrict);
+      addedOHDistrict = false;
       map.removeLayer(OHPrecinct);
+      addedOHPrecinct = false;
 
       map.addLayer(ORDistrict);
+      addedORDistrict = true;
       map.addLayer(ILState);
       map.addLayer(OHState);
     }
@@ -492,11 +632,16 @@ export class MapComponent implements OnInit {
       selectedState = "Ohio";
       map.removeLayer(OHState);
       map.removeLayer(ORDistrict);
+      addedORDistrict = false;
       map.removeLayer(ORPrecinct);
+      addedORPrecinct = false;
       map.removeLayer(ILDistrict);
+      addedILDistrict = false;
       map.removeLayer(ILPrecinct);
+      addedILPrecinct = false;
 
       map.addLayer(OHDistrict);
+      addedOHDistrict = true;
       map.addLayer(ORState);
       map.addLayer(ILState);
     }
@@ -507,32 +652,34 @@ export class MapComponent implements OnInit {
         //loadILDistrict();
         changeState(IL);
         //selectILDistrict();
+        map.fitBounds(e.target.getBounds(), { maxZoom: 6 });
       } else if (name == "Oregon") {
         //loadORDistrict();
         changeState(OR);
         //selectORDistrict();
+        map.fitBounds(e.target.getBounds(), { maxZoom: 6 });
       } else if (name == "Ohio") {
         //loadOHDistrict();
         changeState(OH);
         //selectOHDistrict();
+        map.fitBounds(e.target.getBounds(), { maxZoom: 6 });
       } else if (name == undefined) {
         //distrcts doesn't have name, they only have id
         if (selectedState == "Illinois") {
           //loadILPrecinct();
-          map.removeLayer(ILDistrict);
-          map.addLayer(ILPrecinct);
+          addILPrecinct();
+          map.setZoom(7);
         } else if (selectedState == "Oregon") {
           //loadORPrecinct();
-          map.removeLayer(ORDistrict);
-          //console.log("or : ", ORPrecinct);
-          map.addLayer(ORPrecinct);
+          addORPrecinct();
+          map.setZoom(7);
         } else if (selectedState == "Ohio") {
           //loadOHPrecinct();
-          map.removeLayer(OHDistrict);
-          map.addLayer(OHPrecinct);
+          addOHPrecinct();
+          map.setZoom(7);
         }
       }
-      map.fitBounds(e.target.getBounds());
+      //map.fitBounds(e.target.getBounds(), { maxZoom: 6 });
     }
 
     function onEachFeature(feature, layer) {
