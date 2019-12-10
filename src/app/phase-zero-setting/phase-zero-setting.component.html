@@ -1,10 +1,10 @@
 <ul nz-menu nzMode="inline">
   <li nz-menu-group nzTitle="Year Selection">
     <ul>
-      <nz-select [(ngModel)]="selectedYear" nzAllowClear nzPlaceHolder="Choose a year">
-        <nz-option nzValue="CONGRESSION_2016" nzLabel="2016 Congressional"></nz-option>
-        <nz-option nzValue="CONGRESSION_2018" nzLabel="2018 Congressional"></nz-option>
-        <nz-option nzValue="PRESIDENTIANAL_2016" nzLabel=" 2016 Presidential"></nz-option>
+      <nz-select [(ngModel)]="selectedYear" (ngModelChange)="change_year()" nzAllowClear nzPlaceHolder="Choose a year">
+        <nz-option nzValue="CONGRESSIONAL_2016" nzLabel="2016 Congressional"></nz-option>
+        <nz-option nzValue="CONGRESSIONAL_2018" nzLabel="2018 Congressional"></nz-option>
+        <nz-option nzValue="PRESIDENTIAL_2016" nzLabel=" 2016 Presidential"></nz-option>
       </nz-select>
     </ul>
   </li>
@@ -40,59 +40,51 @@
   </li>
 </ul>
 
-<nz-drawer [nzBodyStyle]="{ height: 'calc(100% - 55px)', overflow: 'auto' }" [nzMaskClosable]="false" [nzWidth]="730"
+<nz-drawer [nzBodyStyle]="{ height: 'calc(100% - 55px)', overflow: 'auto' }" [nzMaskClosable]="false" [nzWidth]="900"
   [nzVisible]="showTable" nzTitle="Table" (nzOnClose)="onTableClose()">
   <nz-table #basicTable [nzData]="listOfData">
     <thead>
       <tr>
-        <th>ID</th>
+        <th>Precinct Name</th>
         <th>Demographic Group</th>
-        <th>Percentage</th>
         <th>Population</th>
+        <th>Winning Votes</th>
         <th>Total Votes</th>
         <th>Winning Party</th>
-        <th>Winning Votes</th>
-        <th>
+        <th>Percentage</th>
+        <th>Eligibility</th>
       </tr>
     </thead>
     <tbody>
       <tr *ngFor="let data of basicTable.data">
-        <td>{{ data.precinctIdd }}</td>
+        <td>{{ data.precinctName }}</td>
         <td>{{ data.demographicGroup }}</td>
-        <td>{{ data.percentage }} </td>
         <td>{{ data.population }} </td>
+        <td>{{ data.winningVotes }}</td>
         <td>{{ data.totalVotes}} </td>
         <td>{{ data.winningParty }} </td>
-        <td>{{ data.winningVotes }}</td>
+        <td>{{ data.percentage }} </td>
+        <td>{{ data.eligible }}</td>
       </tr>
     </tbody>
   </nz-table>
 </nz-drawer>
 
 <nz-drawer [nzBodyStyle]="{ height: 'calc(100% - 55px)', overflow: 'auto' }" [nzMaskClosable]="false" [nzWidth]="730"
-  [nzVisible]="showDistrictTable" nzTitle="Table" (nzOnClose)="onDistrictTableClose()">
-  <nz-table #basicTable2 [nzData]="listOfData">
+  [nzVisible]="showDistrictTable" nzTitle="{{state_summary}}" (nzOnClose)="onDistrictTableClose()">
+  <nz-table #districtTable [nzData]="districtData">
     <thead>
       <tr>
-        <th>ID</th>
-        <th>Demographic Group</th>
-        <th>Percentage</th>
-        <th>Population</th>
-        <th>Total Votes</th>
-        <th>Winning Party</th>
-        <th>Winning Votes</th>
-        <th>
+        <th>District ID</th>
+        <th>Representative Name</th>
+        <th>Party Affiliation</th>
       </tr>
     </thead>
     <tbody>
-      <tr *ngFor="let data of basicTable.data">
-        <td>{{ data.precinctIdd }}</td>
-        <td>{{ data.demographicGroup }}</td>
-        <td>{{ data.percentage }} </td>
-        <td>{{ data.population }} </td>
-        <td>{{ data.totalVotes}} </td>
-        <td>{{ data.winningParty }} </td>
-        <td>{{ data.winningVotes }}</td>
+      <tr *ngFor="let data of districtTable.data">
+        <td>{{ data.id }}</td>
+        <td>{{ data.name }}</td>
+        <td>{{ data.party }} </td>
       </tr>
     </tbody>
   </nz-table>

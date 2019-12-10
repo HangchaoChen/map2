@@ -1,5 +1,4 @@
 import { MapService } from "./../map.service";
-import { properties } from "ng-zorro-antd";
 import { Component, OnInit, Input } from "@angular/core";
 import { HttpClient, HttpParams } from "@angular/common/http";
 import * as L from "leaflet";
@@ -23,24 +22,18 @@ export class MapComponent implements OnInit {
   OR = "Oregon";
 
   stateName;
+  selected_year;
+  p1Data: string[];
 
-  async loadDisctrictdata(year, stateName) {
-    let url = this.getDistrictURL;
-    let result = new Set();
-    let params = new HttpParams()
-      .set("year", year) // change back to year when backend updated
-      .set("state", stateName.toUpperCase());
-    await this.http.get(url, { params: params }).subscribe((json: any) => {
-      Object.keys(json.result).forEach((index) => {
-        let info = {
-          id: index,
-          population: json.result[index].population,
-          partyVotes: json.result[index].partyVotes
-        };
-        result.add(info);
-      });
+  load_p1_data(data) {
+    let url =
+      // "https://raw.githubusercontent.com/HangchaoChen/States_GeoJSON/master/p1_20.json";
+      "https://raw.githubusercontent.com/HangchaoChen/States_GeoJSON/master/newp1.json";
+    this.http.get(url).subscribe((json: any) => {
+      data = json.result.clusters;
+      this.p1Data = json.result.clusters;
+      console.log(data);
     });
-    return result;
   }
 
   changeState(stateName) {
@@ -48,36 +41,84 @@ export class MapComponent implements OnInit {
   }
 
   ngOnInit() {
-    let changeState = (stateName) => {
+    var p1_data: string[];
+    var selectedState;
+    var selected_year = this.selected_year;
+    this.mapService.changeYear("CONGRESSIONAL_2018");
+    var ILState;
+    var OHState;
+    var ORState;
+    var statesLayer;
+    var ILDistrict;
+    var ILPrecinct;
+    var ORDistrict;
+    var ORPrecinct;
+    var OHDistrict;
+    var OHPrecinct;
+
+    var addedOHDistrict = false;
+    var addedORDistrict = false;
+    var addedILDistrict = false;
+    var addedOHPrecinct = false;
+    var addedORPrecinct = false;
+    var addedILPrecinct = false;
+
+    this.load_p1_data(p1_data);
+
+    let changeState = stateName => {
       this.changeState(stateName);
     };
-    this.mapService.selectedState.subscribe((stateName) => {
+    this.mapService.selectedState.subscribe(stateName => {
       // console.log("user selected from dropdown: ", stateName);
       if (stateName == this.OH) {
         selectedState = OH;
-        statesLayer.eachLayer((layer) => {
+        statesLayer.eachLayer(layer => {
           if (layer.feature.properties.name == stateName) {
             selectOHDistrict();
             map.flyToBounds(layer, { maxZoom: 6 });
           }
         });
+        var hashmap = new Map();
+        for (let i = 0; i < this.p1Data.length; i++) {
+          for (let j = 0; j < this.p1Data[i].length; j++) {
+            hashmap.set(this.p1Data[i][j], i);
+          }
+        }
+        //
+        OHPrecinct.eachLayer(layer => {
+          let id = layer.feature.properties.id;
+          if (hashmap.has(id)) {
+            layer.setStyle({
+              weight: 1,
+              opacity: 0.7,
+              fillOpacity: 0.7,
+              color: colors[hashmap.get(id)],
+              fillColor: colors[hashmap.get(id)]
+            });
+          }
+        });
       } else if (stateName == this.IL) {
         selectedState = IL;
-        statesLayer.eachLayer((layer) => {
+        statesLayer.eachLayer(layer => {
           if (layer.feature.properties.name == stateName) {
             selectILDistrict();
             map.flyToBounds(layer, { maxZoom: 6 });
           }
         });
       } else if (stateName == this.OR) {
-        selectedState = IL;
-        statesLayer.eachLayer((layer) => {
+        selectedState = OR;
+        statesLayer.eachLayer(layer => {
           if (layer.feature.properties.name == stateName) {
             selectORDistrict();
             map.flyToBounds(layer, { maxZoom: 6 });
           }
         });
       }
+    });
+    this.mapService.selectedYear.subscribe(year => {
+      this.selected_year = year;
+      selected_year = this.selected_year;
+      //console.log("in map, year: ", selected_year);
     });
 
     const IL = this.IL;
@@ -102,25 +143,6 @@ export class MapComponent implements OnInit {
       REPUBLICAN
     }
     var map = L.map("map").setView([37.8, -96], 4);
-
-    var selectedState;
-    var ILState;
-    var OHState;
-    var ORState;
-    var statesLayer;
-    var ILDistrict;
-    var ILPrecinct;
-    var ORDistrict;
-    var ORPrecinct;
-    var OHDistrict;
-    var OHPrecinct;
-
-    var addedOHDistrict = false;
-    var addedORDistrict = false;
-    var addedILDistrict = false;
-    var addedOHPrecinct = false;
-    var addedORPrecinct = false;
-    var addedILPrecinct = false;
 
     var colors = [
       "Aquamarine",
@@ -225,11 +247,6 @@ export class MapComponent implements OnInit {
     loadOHDistrict();
     loadOHPrecinct();
 
-    /*
-    let year = "CONGRESSION_2016";
-    const ORDistrictInfo = this.loadDisctrictdata(year, OR);
-    console.log("test loaded data:", ORDistrict);*/
-
     async function loadStates() {
       ILState = L.geoJson.ajax(
         "https://raw.githubusercontent.com/HangchaoChen/States_GeoJSON/master/IL_state.json",
@@ -317,7 +334,7 @@ export class MapComponent implements OnInit {
 
     function loadOHPrecinct() {
       OHPrecinct = L.geoJson.ajax(
-        "https://raw.githubusercontent.com/HangchaoChen/States_GeoJSON/master/OH_map_data.json",
+        "https://raw.githubusercontent.com/HangchaoChen/States_GeoJSON/master/Updated%20Precinct%20GeoJSON/OH_Precinct_GeoJSON.json",
         {
           style: style,
           onEachFeature: onEachFeature
@@ -348,44 +365,6 @@ export class MapComponent implements OnInit {
       this.update();
       return this._div;
     };
-
-    enum Info {
-      Total,
-      White,
-      Black_or_African_American,
-      American_Indian_and_Alaska_Native,
-      Asian,
-      Native_Hawaiian_and_Other_Pacific_Islander,
-      Some_Other_Race,
-      Two_or_more_races
-    }
-
-    var OR_district_info = [
-      [858910, 682996, 18791, 5374, 69904, 4836, 33889, 43120],
-      [831343, 752017, 5956, 15829, 10435, 1882, 15377, 29847],
-      [841456, 665732, 42053, 7899, 66538, 5304, 12169, 41761],
-      [814998, 708868, 5543, 10607, 21313, 1621, 24402, 42644],
-      [844006, 705370, 9703, 9342, 22490, 5115, 52136, 39850]
-    ];
-
-    var OH_district_info = [
-      [740979, 528785, 153148, 1049, 27695, 0, 6680, 23622],
-      [734712, 626756, 71218, 1183, 14023, 1326, 2967, 17239],
-      [812264, 435291, 276374, 2310, 37678, 68, 21435, 39108],
-      [707219, 637111, 35888, 3610, 8129, 74, 4479, 17928],
-      [717088, 654248, 18872, 1250, 9691, 857, 10590, 21580],
-      [694694, 658447, 15368, 1304, 3887, 0, 2074, 13614],
-      [734091, 677610, 28285, 1645, 4713, 0, 3780, 18058],
-      [731637, 640979, 44808, 1248, 16544, 0, 6862, 21196],
-      [716235, 533397, 112356, 3161, 10655, 503, 19485, 36678],
-      [725301, 553451, 121710, 1847, 17383, 414, 5073, 25423],
-      [678001, 269493, 355642, 1791, 17489, 327, 8207, 25052],
-      [789634, 683722, 36840, 1594, 36877, 136, 3733, 26732],
-      [707603, 580914, 82532, 977, 15332, 37, 5696, 22115],
-      [720551, 649331, 35441, 569, 16156, 355, 4629, 14070],
-      [759569, 679312, 36182, 1063, 19593, 86, 2709, 20624],
-      [719864, 662093, 21642, 1071, 15917, 45, 3737, 15359]
-    ];
 
     map.on("zoomend", () => {
       console.log("zoom level :", map.getZoom());
@@ -421,6 +400,7 @@ export class MapComponent implements OnInit {
     });
 
     info.update = function(props) {
+      //console.log(props);
       let or = StateID.OREGON;
       let il = StateID.ILLINOIS;
       let oh = StateID.OHIO;
@@ -438,10 +418,11 @@ export class MapComponent implements OnInit {
       let democratic = -1;
       if (props != undefined) {
         let state = props.STATEFP;
-        console.log("props: ", props);
-        id = props.CD116FP;
+        //console.log("props: ", props);
+        id = props.id;
         if (id == undefined) {
-          id = props.id;
+          //console.log("using cd116fp as id");
+          id = props.CD116FP == undefined ? -1 : props.props.CD116FP;
         }
         if (props.name == OH || props.name == IL || props.name == OR) {
           total = parseInt(props.demographic["Total"]);
@@ -480,7 +461,9 @@ export class MapComponent implements OnInit {
           two_race = parseInt(props.demographic["Two or more races"]);
           republic = parseInt(props.vote.republican.Votes);
           democratic = parseInt(props.vote.democratic.Votes);
-        } else if (state == oh) {
+        } else if (selectedState == OH) {
+          console.log(props);
+          let vote = "vote_" + selected_year;
           total = parseInt(props.demographic["Total"]);
           white = parseInt(props.demographic["White"]);
           black = parseInt(props.demographic["Black or African American"]);
@@ -490,8 +473,8 @@ export class MapComponent implements OnInit {
           asian = parseInt(props.demographic["Asian"]);
           other = parseInt(props.demographic["Some Other Race"]);
           two_race = parseInt(props.demographic["Two or more races"]);
-          republic = parseInt(props.vote.republican.Votes);
-          democratic = parseInt(props.vote.democratic.Votes);
+          republic = parseInt(props[vote].republican);
+          democratic = parseInt(props[vote].democratic);
         }
       }
 
@@ -502,7 +485,7 @@ export class MapComponent implements OnInit {
           ? "<b>" +
             props.name +
             "</b><br />" +
-            "total population : " +
+            "Total Population : " +
             (total == -1 ? "" : total) +
             "<br/>" +
             "White : " +
@@ -528,16 +511,16 @@ export class MapComponent implements OnInit {
             "<br/>" +
             "<br/>" +
             "<h4>Voting data</h4>" +
-            "republican : " +
+            "Republican : " +
             (republic == -1 ? "" : republic) +
             "<br/>" +
-            "democratic : " +
+            "Democratic : " +
             (democratic == -1 ? "" : democratic) +
             "<br/>"
           : "ID: " +
             (id == -1 ? "" : id) +
             "<br />" +
-            "total population : " +
+            "Total Population : " +
             (total == -1 ? "" : total) +
             "<br/>" +
             "White : " +
@@ -563,10 +546,10 @@ export class MapComponent implements OnInit {
             "<br/>" +
             "<br/>" +
             "<h4>Voting data</h4>" +
-            "republican : " +
+            "Republican : " +
             (republic == -1 ? "" : republic) +
             "<br/>" +
-            "democratic : " +
+            "Democratic : " +
             (democratic == -1 ? "" : democratic) +
             "<br/>"
       }`;
@@ -578,28 +561,18 @@ export class MapComponent implements OnInit {
       //console.log("color: ", feature);
       let state = feature.properties.STATEFP;
       let district = feature.properties.CD116FP;
+      let id = feature.properties.id;
+      // console.log("id: ", id);
       let color = "White";
       if (district !== undefined) {
         color = colors[district - 1];
       }
-      /*
-      if (state == StateID.OREGON) {
-        //console.log(color);
-        color = feature.properties.votes.color;
-      }
-      //console.log("pp:", feature.properties);
-      if (feature.properties.OROnly_P_1 == OR) {
-        if (feature.properties.OBJECTID < 1000) {
-          color = "red";
-        } else {
-          color = "blue";
-        }
-      }*/
+      //console.log("feature: ", feature);
 
       return {
         weight: 1,
-        opacity: 1,
-        color: "black",
+        opacity: 0.7,
+        color: color,
         fillOpacity: 0.7,
         fillColor: color
         /*
@@ -729,16 +702,17 @@ export class MapComponent implements OnInit {
         if (selectedState == "Illinois") {
           //loadILPrecinct();
           addILPrecinct();
-          map.setZoom(7);
+          //map.setZoom(7);
         } else if (selectedState == "Oregon") {
           //loadORPrecinct();
           addORPrecinct();
-          map.setZoom(7);
+          //map.setZoom(7);
         } else if (selectedState == "Ohio") {
           //loadOHPrecinct();
           addOHPrecinct();
-          map.setZoom(7);
+          //map.setZoom(7);
         }
+        map.fitBounds(e.target.getBounds());
       }
       //map.fitBounds(e.target.getBounds(), { maxZoom: 6 });
     }

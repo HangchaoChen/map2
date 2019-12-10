@@ -1,14 +1,14 @@
 <ul nz-menu nzMode="inline">
   <li nz-menu-group nzTitle="Year Selection">
     <ul>
-      <nz-select [(ngModel)]="selectedYear" nzAllowClear nzPlaceHolder="Choose a year">
-        <nz-option nzValue="2016 Congressional" nzLabel="2016 Congressional"></nz-option>
-        <nz-option nzValue="2018 Congressional" nzLabel="2018 Congressional"></nz-option>
-        <nz-option nzValue="2016 Presidential" nzLabel=" 2016 Presidential"></nz-option>
+      <nz-select [(ngModel)]="selectedYear" (ngModelChange)="change_year()" nzAllowClear nzPlaceHolder="Choose a year">
+        <nz-option nzValue="CONGRESSIONAL_2016" nzLabel="2016 Congressional"></nz-option>
+        <nz-option nzValue="CONGRESSIONAL_2018" nzLabel="2018 Congressional"></nz-option>
+        <nz-option nzValue="PRESIDENTIAL_2016" nzLabel=" 2016 Presidential"></nz-option>
       </nz-select>
     </ul>
   </li>
-  <li nz-menu-group nzTitle="Number of district">
+  <li nz-menu-group nzTitle="Desired Number of Congressional Districts">
     <ul>
       <nz-input-number [(ngModel)]="numberOfDistrict" [nzMin]="0" [nzMax]="100" [nzStep]="1"></nz-input-number>
     </ul>
@@ -16,30 +16,131 @@
 
   <li nz-submenu nzTitle="Weights" nzIcon="edit">
     <ul>
-      <li nz-menu-item>
-        <nz-row>
-          <nz-col nzSpan="13">
-            <nz-slider [nzMin]="0" [nzMax]="100" [(ngModel)]="weight1"></nz-slider>
-          </nz-col>
-          <div nz-col nzSpan="3">&emsp;{{ weight1 }}</div>
-        </nz-row>
+
+
+      <li nz-submenu nzTitle="Compactness">
+        <ul>
+
+
+          <li nz-menu-group nzTitle="Reock Compactness"></li>
+          <li nz-menu-item>
+            <nz-row>
+              <nz-col nzSpan="13">
+                <nz-slider [nzMin]="0" [nzMax]="100" [(ngModel)]="Reock_Compactness"></nz-slider>
+              </nz-col>
+              <div nz-col nzSpan="3">&emsp;{{ Reock_Compactness }}</div>
+            </nz-row>
+          </li>
+
+          <li nz-menu-group nzTitle="Convex Hull Compactness"></li>
+          <li nz-menu-item>
+            <nz-row>
+              <nz-col nzSpan="13">
+                <nz-slider [nzMin]="0" [nzMax]="100" [(ngModel)]="Convex_Hull_Compactness"></nz-slider>
+              </nz-col>
+              <div nz-col nzSpan="3">&emsp;{{ Convex_Hull_Compactness }}</div>
+            </nz-row>
+          </li>
+
+          <li nz-menu-group nzTitle="Edge Compactness"></li>
+          <li nz-menu-item>
+            <nz-row>
+              <nz-col nzSpan="13">
+                <nz-slider [nzMin]="0" [nzMax]="100" [(ngModel)]="Edge_Compactness"></nz-slider>
+              </nz-col>
+              <div nz-col nzSpan="3">&emsp;{{ Edge_Compactness}}</div>
+            </nz-row>
+          </li>
+
+          <li nz-menu-group nzTitle="Gerrymander Republican"></li>
+          <li nz-menu-item>
+            <nz-row>
+              <nz-col nzSpan="13">
+                <nz-slider [nzMin]="0" [nzMax]="100" [(ngModel)]="Gerrymander_Republican"></nz-slider>
+              </nz-col>
+              <div nz-col nzSpan="3">&emsp;{{ Gerrymander_Republican}}</div>
+            </nz-row>
+          </li>
+
+          <li nz-menu-group nzTitle="Gerrymander Democrat"></li>
+          <li nz-menu-item>
+            <nz-row>
+              <nz-col nzSpan="13">
+                <nz-slider [nzMin]="0" [nzMax]="100" [(ngModel)]="Gerrymander_Democrat"></nz-slider>
+              </nz-col>
+              <div nz-col nzSpan="3">&emsp;{{ Gerrymander_Democrat}}</div>
+            </nz-row>
+          </li>
+        </ul>
       </li>
-      <li nz-menu-item>
-        <nz-row>
-          <nz-col nzSpan="13">
-            <nz-slider [nzMin]="0" [nzMax]="100" [(ngModel)]="weight2"></nz-slider>
-          </nz-col>
-          <div nz-col nzSpan="3">&emsp;{{ weight2 }}</div>
-        </nz-row>
+
+      <li nz-submenu nzTitle="Political Fairness">
+        <ul>
+
+
+          <li nz-menu-group nzTitle="Partisan Fairness"></li>
+          <li nz-menu-item>
+            <nz-row>
+              <nz-col nzSpan="13">
+                <nz-slider [nzMin]="0" [nzMax]="100" [(ngModel)]="Partisan_Fairness"></nz-slider>
+              </nz-col>
+              <div nz-col nzSpan="3">&emsp;{{ Partisan_Fairness }}</div>
+            </nz-row>
+          </li>
+
+          <li nz-menu-group nzTitle="Efficiency Gap"></li>
+          <li nz-menu-item>
+            <nz-row>
+              <nz-col nzSpan="13">
+                <nz-slider [nzMin]="0" [nzMax]="100" [(ngModel)]="Efficiency_Gap"></nz-slider>
+              </nz-col>
+              <div nz-col nzSpan="3">&emsp;{{ Efficiency_Gap }}</div>
+            </nz-row>
+          </li>
+
+          <li nz-menu-group nzTitle="Competitiveness"></li>
+          <li nz-menu-item>
+            <nz-row>
+              <nz-col nzSpan="13">
+                <nz-slider [nzMin]="0" [nzMax]="100" [(ngModel)]="Competitiveness"></nz-slider>
+              </nz-col>
+              <div nz-col nzSpan="3">&emsp;{{ Competitiveness }}</div>
+            </nz-row>
+          </li>
+
+
+        </ul>
       </li>
-      <li nz-menu-item>
-        <nz-row>
-          <nz-col nzSpan="13">
-            <nz-slider [nzMin]="0" [nzMax]="100" [(ngModel)]="weight3"></nz-slider>
-          </nz-col>
-          <div nz-col nzSpan="3">&emsp;{{ weight3 }}</div>
-        </nz-row>
+
+      <li nz-submenu nzTitle="Population Equality">
+        <ul>
+
+
+          <li nz-menu-group nzTitle="Population Homogeneity"></li>
+          <li nz-menu-item>
+            <nz-row>
+              <nz-col nzSpan="13">
+                <nz-slider [nzMin]="0" [nzMax]="100" [(ngModel)]="Population_Homogeneity"></nz-slider>
+              </nz-col>
+              <div nz-col nzSpan="3">&emsp;{{ Population_Homogeneity }}</div>
+            </nz-row>
+          </li>
+
+          <li nz-menu-group nzTitle="Population Equality"></li>
+          <li nz-menu-item>
+            <nz-row>
+              <nz-col nzSpan="13">
+                <nz-slider [nzMin]="0" [nzMax]="100" [(ngModel)]="Population_Equality"></nz-slider>
+              </nz-col>
+              <div nz-col nzSpan="3">&emsp;{{ Population_Equality }}</div>
+            </nz-row>
+          </li>
+
+
+        </ul>
       </li>
+
+
     </ul>
   </li>
 
