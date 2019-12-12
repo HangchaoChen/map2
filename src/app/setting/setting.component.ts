@@ -94,7 +94,9 @@ export class SettingComponent implements OnInit {
       let done = result["result"].isFinal;
     });
     //this.auto_run();
-    this.show_next = true;
+    if (this.updateBehavior) {
+      this.show_next = true;
+    }
   }
 
   auto_run() {
