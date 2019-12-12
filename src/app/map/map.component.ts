@@ -23,16 +23,25 @@ export class MapComponent implements OnInit {
 
   stateName;
   selected_year;
-  p1Data: string[];
+  p1Data;
+  id_map = new Map();
 
   load_p1_data(data) {
     let url =
-      // "https://raw.githubusercontent.com/HangchaoChen/States_GeoJSON/master/p1_20.json";
+      // "https://raw.githubusercontent.com/HangchaoChen/States_GeoJSON/master/newdatap1.json";
       "https://raw.githubusercontent.com/HangchaoChen/States_GeoJSON/master/newp1.json";
     this.http.get(url).subscribe((json: any) => {
       data = json.result.clusters;
       this.p1Data = json.result.clusters;
-      console.log(data);
+      console.log("data loaded", this.p1Data);
+      console.log(typeof this.p1Data);
+      let x = 0;
+      for (var key of Object.keys(this.p1Data)) {
+        for (let i = 0; i < this.p1Data[key].length; i++) {
+          this.id_map.set(this.p1Data[key][i], x);
+        }
+        x++;
+      }
     });
   }
 
@@ -40,10 +49,24 @@ export class MapComponent implements OnInit {
     this.mapService.changeState(stateName);
   }
 
+  stringToColour(str) {
+    var hash = 0;
+    for (var i = 0; i < str.length; i++) {
+      hash = str.charCodeAt(i) + ((hash << 5) - hash);
+    }
+    var colour = "#";
+    for (var i = 0; i < 3; i++) {
+      var value = (hash >> (i * 8)) & 0xff;
+      colour += ("00" + value.toString(16)).substr(-2);
+    }
+    return colour;
+  }
+
   ngOnInit() {
-    var p1_data: string[];
+    var p1_data;
     var selectedState;
     var selected_year = this.selected_year;
+    var id_map = this.id_map;
     this.mapService.changeYear("CONGRESSIONAL_2018");
     var ILState;
     var OHState;
@@ -56,6 +79,12 @@ export class MapComponent implements OnInit {
     var OHDistrict;
     var OHPrecinct;
 
+    var state_data_info = {
+      Illinois: {},
+      Ohio: {},
+      Oregon: {}
+    };
+
     var addedOHDistrict = false;
     var addedORDistrict = false;
     var addedILDistrict = false;
@@ -63,13 +92,13 @@ export class MapComponent implements OnInit {
     var addedORPrecinct = false;
     var addedILPrecinct = false;
 
-    this.load_p1_data(p1_data);
+    //this.load_p1_data(p1_data);
 
     let changeState = stateName => {
       this.changeState(stateName);
     };
     this.mapService.selectedState.subscribe(stateName => {
-      // console.log("user selected from dropdown: ", stateName);
+      console.log("changing state name: ", stateName);
       if (stateName == this.OH) {
         selectedState = OH;
         statesLayer.eachLayer(layer => {
@@ -78,25 +107,20 @@ export class MapComponent implements OnInit {
             map.flyToBounds(layer, { maxZoom: 6 });
           }
         });
-        var hashmap = new Map();
-        for (let i = 0; i < this.p1Data.length; i++) {
-          for (let j = 0; j < this.p1Data[i].length; j++) {
-            hashmap.set(this.p1Data[i][j], i);
-          }
-        }
-        //
-        OHPrecinct.eachLayer(layer => {
-          let id = layer.feature.properties.id;
-          if (hashmap.has(id)) {
-            layer.setStyle({
-              weight: 1,
-              opacity: 0.7,
-              fillOpacity: 0.7,
-              color: colors[hashmap.get(id)],
-              fillColor: colors[hashmap.get(id)]
-            });
-          }
-        });
+        // OHPrecinct.eachLayer(layer => {
+        //   //console.log("~~~~~~coloring precinct level~~~~~~~~");
+        //   let id = layer.feature.properties.id;
+        //   if (id_map.has(id)) {
+        //     layer.setStyle({
+        //       weight: 1,
+        //       opacity: 0.7,
+        //       fillOpacity: 0.7,
+        //       color: colors[id_map.get(id)],
+        //       fillColor: colors[id_map.get(id)]
+        //     });
+        //   }
+        //   console.log("~~~~~~~~~~~~coloring done~~~~~~~~~");
+        // });
       } else if (stateName == this.IL) {
         selectedState = IL;
         statesLayer.eachLayer(layer => {
@@ -118,7 +142,61 @@ export class MapComponent implements OnInit {
     this.mapService.selectedYear.subscribe(year => {
       this.selected_year = year;
       selected_year = this.selected_year;
-      //console.log("in map, year: ", selected_year);
+      if (selectedState == this.IL) {
+      } else if (selectedState == this.OH) {
+        for (let id of id_map.keys()) {
+          console.log(id);
+        }
+      } else if (selectedState == this.OR) {
+        id_map.forEach(element => {
+          // console.log(element);
+          //clear the precinct level map in here
+        });
+      }
+      this.id_map.clear();
+      id_map.clear();
+      id_map = this.id_map;
+    });
+
+    this.mapService.p1_data.subscribe(data => {
+      // console.log("data recevied:");
+      // console.log(data);
+      // console.log("and the selected state is : ", selectedState);
+      if (selectedState == this.OH) {
+        //this.id_map.clear();
+        //id_map.clear();
+        // id_map = this.id_map;
+        // console.log("id map cleared");
+        let done = data["result"].isFinal;
+        // console.log("is it done? : ", done);
+        this.p1Data = data["result"].clusters;
+        // console.log("data loaded", this.p1Data);
+        // console.log(typeof this.p1Data);
+        for (var key of Object.keys(this.p1Data)) {
+          let x = this.stringToColour(key);
+          //console.log("random color is :", x);
+          for (let i = 0; i < this.p1Data[key].length; i++) {
+            this.id_map.set(this.p1Data[key][i], x);
+          }
+        }
+        id_map = this.id_map;
+        OHPrecinct.eachLayer(layer => {
+          //console.log("~~~~~~coloring precinct level~~~~~~~~");
+          let id = layer.feature.properties.id;
+          if (this.id_map.has(id)) {
+            layer.setStyle({
+              weight: 1,
+              opacity: 0.7,
+              fillOpacity: 0.7,
+              color: id_map.get(id),
+              fillColor: id_map.get(id)
+            });
+          }
+          // console.log("~~~~~~~~~~~~coloring done~~~~~~~~~");
+        });
+        this.mapService.change_p1_status(done);
+        this.mapService.change_p1_color_status(true);
+      }
     });
 
     const IL = this.IL;
@@ -171,6 +249,33 @@ export class MapComponent implements OnInit {
       "Fuchsia",
       "HotPink"
     ];
+
+    function getColor() {
+      var picker = [
+        "0",
+        "1",
+        "2",
+        "3",
+        "4",
+        "5",
+        "6",
+        "7",
+        "8",
+        "9",
+        "a",
+        "b",
+        "c",
+        "e",
+        "f"
+      ];
+      var color1 = "#";
+      for (var count = 0; count < 6; count++) {
+        var random = Math.floor(Math.random() * 15);
+        color1 += picker[random];
+      }
+      //console.log("random pick color " + color1);
+      return color1;
+    }
 
     function addOHDistrict() {
       if (addedOHPrecinct) {
@@ -462,7 +567,7 @@ export class MapComponent implements OnInit {
           republic = parseInt(props.vote.republican.Votes);
           democratic = parseInt(props.vote.democratic.Votes);
         } else if (selectedState == OH) {
-          console.log(props);
+          //console.log(props);
           let vote = "vote_" + selected_year;
           total = parseInt(props.demographic["Total"]);
           white = parseInt(props.demographic["White"]);
@@ -623,11 +728,24 @@ export class MapComponent implements OnInit {
 
     function resetHighlight(e) {
       statesLayer.resetStyle(e.target);
+      let id = e.target.feature.properties.id;
+      // console.log("id: ", id);
+      // console.log("id map: ", id_map);
+      //console.log("e.target: ", e.target.feature.properties.id);
+      if (id_map.has(id)) {
+        e.target.setStyle({
+          weight: 1,
+          opacity: 0.7,
+          fillOpacity: 0.7,
+          color: id_map.get(id),
+          fillColor: id_map.get(id)
+        });
+      }
       info.update();
     }
 
     function selectILDistrict() {
-      selectedState = "Illinois";
+      selectedState = IL;
       map.removeLayer(ILState);
       map.removeLayer(ORDistrict);
       addedORDistrict = false;
@@ -645,7 +763,7 @@ export class MapComponent implements OnInit {
     }
 
     function selectORDistrict() {
-      selectedState = "Oregon";
+      selectedState = OR;
       map.removeLayer(ORState);
       map.removeLayer(ILDistrict);
       addedILDistrict = false;
@@ -663,7 +781,7 @@ export class MapComponent implements OnInit {
     }
 
     function selectOHDistrict() {
-      selectedState = "Ohio";
+      selectedState = OH;
       map.removeLayer(OHState);
       map.removeLayer(ORDistrict);
       addedORDistrict = false;
