@@ -45,41 +45,54 @@ export class SettingComponent implements OnInit {
 
   done = false;
 
+  apply_done = false;
+
+  running_p1 = false;
+
+  setting_has_error = false;
+
   change_year() {
     this.mapService.changeYear(this.selectedYear);
-    console.log("changing selected year from setting: ", this.selectedYear);
+    //console.log("changing selected year from setting: ", this.selectedYear);
   }
 
   onClickSwitch() {
-    console.log("update switch");
+    //console.log("update switch");
     this.updateBehavior = !this.updateBehavior;
   }
   onClickApply() {
-    console.log("state name: ", this.stateName);
-    console.log("year: ", this.selectedYear);
-    console.log("numberOfDistrict: ", this.numberOfDistrict);
-    console.log("w1: ", this.Reock_Compactness);
-    console.log("w2: ", this.Convex_Hull_Compactness);
-    console.log("w3: ", this.Edge_Compactness);
-    console.log("update: ", this.updateBehavior);
+    // console.log("state name: ", this.stateName);
+    // console.log("year: ", this.selectedYear);
+    // console.log("numberOfDistrict: ", this.numberOfDistrict);
+    // console.log("w1: ", this.Reock_Compactness);
+    // console.log("w2: ", this.Convex_Hull_Compactness);
+    // console.log("w3: ", this.Edge_Compactness);
+    // console.log("update: ", this.updateBehavior);
     let url = "http://localhost:8080/setting/phase1Param";
 
-    let header = new HttpHeaders()
-      .set("Content-Type", "application/json")
-      .set("Accept", "application/json");
+    let header = new HttpHeaders().set("Content-Type", "application/json");
 
     let body = {
       stateName: this.stateName,
       weights: null,
       targetDistricts: this.numberOfDistrict,
-      updateDiscrete: "true",
+      updateDiscrete: true,
       election: this.selectedYear,
       targetMinorityPopulation: "AFRICAN_AMERICAN"
     };
-
-    this.http.post(url, body, { headers: header }).subscribe((result: any) => {
-      console.log("post request send: ", result);
-    });
+    this.apply_done = true;
+    this.http.post(url, body, { headers: header }).subscribe(
+      (result: any) => {
+        console.log("post request send: ", result);
+        this.apply_done = false;
+        this.setting_has_error = false;
+      },
+      err => {
+        console.log("error?", err);
+        this.apply_done = false;
+        this.setting_has_error = true;
+      }
+    );
   }
   onClickRunP1() {
     console.log("run p1");
@@ -133,25 +146,28 @@ export class SettingComponent implements OnInit {
         stateName == this.OH ||
         stateName == this.OR
       ) {
-        console.log("state name: ", stateName);
+        //console.log("state name: ", stateName);
       }
     });
     this.mapService.selectedYear.subscribe(year => {
       this.selectedYear = year;
-      console.log("in setting, year change received: ", this.selectedYear);
+      //console.log("in setting, year change received: ", this.selectedYear);
     });
 
     this.mapService.p1_color_status.subscribe(status => {
-      console.log("test: ", status);
+      //console.log("test: ", status);
       if (status && !this.updateBehavior) {
         if (!this.done) {
           this.auto_run();
+          this.running_p1 = true;
+        } else {
+          this.running_p1 = false;
         }
       }
     });
 
     this.mapService.p1_status.subscribe(status => {
-      console.log("changing done");
+      //console.log("changing done");
       this.done = status;
     });
   }

@@ -1,15 +1,17 @@
-import { Component, OnInit } from '@angular/core';
+import { StateInfo } from "./../state.info";
+import { Component, OnInit } from "@angular/core";
 
 @Component({
-  selector: 'app-table',
-  templateUrl: './table.component.html',
-  styleUrls: ['./table.component.css']
+  selector: "app-table",
+  templateUrl: "./table.component.html",
+  styleUrls: ["./table.component.css"]
 })
 export class TableComponent implements OnInit {
+  state_info = new StateInfo();
 
-  constructor() { }
+  statewide_voting_patterns = this.state_info.get_message();
 
-  ngOnInit() {
-  }
+  constructor() {}
 
+  ngOnInit() {}
 }

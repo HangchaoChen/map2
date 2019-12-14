@@ -13,6 +13,7 @@ export class SiderComponent implements OnInit {
 
   openSetting = false;
   openP0Setting = false;
+  open_data_table = false;
   stateName;
 
   showSettings() {
@@ -30,7 +31,11 @@ export class SiderComponent implements OnInit {
   }
 
   showTables() {
-    console.log("show tables");
+    this.open_data_table = true;
+  }
+
+  closeTables() {
+    this.open_data_table = false;
   }
 
   onClickApply() {

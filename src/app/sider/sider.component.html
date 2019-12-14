@@ -26,8 +26,15 @@
   </app-setting>
 </nz-drawer>
 
+<!-- p0 setting drawer-->
 <nz-drawer [nzClosable]="false" [nzVisible]="openP0Setting" nzPlacement="left" nzTitle="Phase 0 Settings"
   (nzOnClose)="closeP0Settings()">
   <app-phase-zero-setting>
   </app-phase-zero-setting>
+</nz-drawer>
+
+<!-- data table drawer-->
+<nz-drawer [nzClosable]="false" [nzVisible]="open_data_table" nzPlacement="left" nzTitle="Data Tables"
+  (nzOnClose)="closeTables()">
+  <app-table></app-table>
 </nz-drawer>

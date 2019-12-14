@@ -1,3 +1,5 @@
+import { StateInfo } from "./../state.info";
+import { Color } from "./../colors";
 import { MapService } from "./../map.service";
 import { Component, OnInit, Input } from "@angular/core";
 import { HttpClient, HttpParams } from "@angular/common/http";
@@ -17,27 +19,38 @@ export class MapComponent implements OnInit {
   IL = "Illinois";
   OH = "Ohio";
   OR = "Oregon";
+  state_info = new StateInfo();
+  state_voting_data = this.state_info.get_voting_data();
 
   stateName;
   selected_year;
   p1Data;
   id_map = new Map();
 
+  load_voting_data(data) {
+    let url =
+      "https://raw.githubusercontent.com/HangchaoChen/CSE308_GeoJSON/master/States_Voting_Data.json";
+    this.http.get(url).subscribe((json: any) => {
+      data = json;
+      // console.log("state data loaded: ", data["Illinois"]);
+    });
+  }
+
   load_p1_data(data) {
     let url =
       // "https://raw.githubusercontent.com/HangchaoChen/States_GeoJSON/master/newdatap1.json";
-      "https://raw.githubusercontent.com/HangchaoChen/States_GeoJSON/master/newdatap1(2).json";
+      "https://raw.githubusercontent.com/HangchaoChen/States_GeoJSON/master/newdatap1.json";
     this.http.get(url).subscribe((json: any) => {
       data = json.result.clusters;
       this.p1Data = json.result.clusters;
       console.log("data loaded", this.p1Data);
       console.log(typeof this.p1Data);
-      let x = 0;
+      let x;
       for (var key of Object.keys(this.p1Data)) {
+        x = this.stringToColour(key);
         for (let i = 0; i < this.p1Data[key].length; i++) {
           this.id_map.set(this.p1Data[key][i], x);
         }
-        x++;
       }
     });
   }
@@ -77,12 +90,8 @@ export class MapComponent implements OnInit {
     var OHPrecinct;
     var overlayMaps = {};
     var baseLayer;
-
-    var state_data_info = {
-      Illinois: {},
-      Ohio: {},
-      Oregon: {}
-    };
+    var color_generator = new Color();
+    var state_voting_data = this.state_voting_data;
 
     var addedOHDistrict = false;
     var addedORDistrict = false;
@@ -135,7 +144,8 @@ export class MapComponent implements OnInit {
       let done = data["result"].isFinal;
       this.p1Data = data["result"].clusters;
       for (var key of Object.keys(this.p1Data)) {
-        let x = this.stringToColour(key);
+        let x = "#" + color_generator.get_random_color(key);
+        console.log("x: ", x);
         for (let i = 0; i < this.p1Data[key].length; i++) {
           this.id_map.set(this.p1Data[key][i], x);
         }
@@ -156,108 +166,6 @@ export class MapComponent implements OnInit {
       this.mapService.change_p1_status(done);
       this.mapService.change_p1_color_status(true);
     };
-
-    this.mapService.selectedState.subscribe(stateName => {
-      //console.log("changing state name: ", stateName);
-      if (stateName == this.OH) {
-        selectedState = OH;
-        statesLayer.eachLayer(layer => {
-          if (layer.feature.properties.name == stateName) {
-            selectOHDistrict();
-            map.flyToBounds(layer, { maxZoom: 6 });
-          }
-        });
-        // OHPrecinct.eachLayer(layer => {
-        //   //console.log("~~~~~~coloring precinct level~~~~~~~~");
-        //   let id = layer.feature.properties.id;
-        //   if (id_map.has(id)) {
-        //     layer.setStyle({
-        //       weight: 1,
-        //       opacity: 0.7,
-        //       fillOpacity: 0.7,
-        //       color: colors[id_map.get(id)],
-        //       fillColor: colors[id_map.get(id)]
-        //     });
-        //   }
-        //   console.log("~~~~~~~~~~~~coloring done~~~~~~~~~");
-        // });
-        baseLayer.removeLayer(ORDistrict);
-        baseLayer.removeLayer(ORPrecinct);
-        baseLayer.removeLayer(ILDistrict);
-        baseLayer.removeLayer(ILPrecinct);
-      } else if (stateName == this.IL) {
-        selectedState = IL;
-        statesLayer.eachLayer(layer => {
-          if (layer.feature.properties.name == stateName) {
-            selectILDistrict();
-            map.flyToBounds(layer, { maxZoom: 6 });
-          }
-        });
-        baseLayer.removeLayer(ORDistrict);
-        baseLayer.removeLayer(ORPrecinct);
-        baseLayer.removeLayer(OHDistrict);
-        baseLayer.removeLayer(OHPrecinct);
-      } else if (stateName == this.OR) {
-        selectedState = OR;
-        statesLayer.eachLayer(layer => {
-          if (layer.feature.properties.name == stateName) {
-            selectORDistrict();
-            map.flyToBounds(layer, { maxZoom: 6 });
-          }
-        });
-        baseLayer.removeLayer(OHDistrict);
-        baseLayer.removeLayer(OHPrecinct);
-        baseLayer.removeLayer(ILDistrict);
-        baseLayer.removeLayer(ILPrecinct);
-      }
-    });
-    this.mapService.selectedYear.subscribe(year => {
-      this.selected_year = year;
-      selected_year = this.selected_year;
-      if (selectedState == this.IL) {
-      } else if (selectedState == this.OH) {
-        for (let id of id_map.keys()) {
-          console.log(id);
-        }
-      } else if (selectedState == this.OR) {
-        id_map.forEach(element => {
-          // console.log(element);
-          //clear the precinct level map in here
-        });
-      }
-      this.id_map.clear();
-      id_map.clear();
-      id_map = this.id_map;
-    });
-
-    this.mapService.p1_data.subscribe(data => {
-      if (selectedState == this.OH) {
-        update_map(data, OHPrecinct);
-        // let done = data["result"].isFinal;
-        // this.p1Data = data["result"].clusters;
-        // for (var key of Object.keys(this.p1Data)) {
-        //   let x = this.stringToColour(key);
-        //   for (let i = 0; i < this.p1Data[key].length; i++) {
-        //     this.id_map.set(this.p1Data[key][i], x);
-        //   }
-        // }
-        // id_map = this.id_map;
-        // OHPrecinct.eachLayer(layer => {
-        //   let id = layer.feature.properties.id;
-        //   if (this.id_map.has(id)) {
-        //     layer.setStyle({
-        //       weight: 1,
-        //       opacity: 0.7,
-        //       fillOpacity: 0.7,
-        //       color: id_map.get(id),
-        //       fillColor: id_map.get(id)
-        //     });
-        //   }
-        // });
-        // this.mapService.change_p1_status(done);
-        // this.mapService.change_p1_color_status(true);
-      }
-    });
 
     const IL = this.IL;
     const OH = this.OH;
@@ -358,7 +266,7 @@ export class MapComponent implements OnInit {
 
     async function loadStates() {
       ILState = L.geoJson.ajax(
-        "https://raw.githubusercontent.com/HangchaoChen/States_GeoJSON/master/IL_state.json",
+        "https://raw.githubusercontent.com/HangchaoChen/CSE308_GeoJSON/master/State%20GeoJSON/IL_State.json",
         {
           style: style,
           onEachFeature: onEachFeature
@@ -366,7 +274,7 @@ export class MapComponent implements OnInit {
       );
       map.addLayer(ILState);
       OHState = L.geoJson.ajax(
-        "https://raw.githubusercontent.com/HangchaoChen/States_GeoJSON/master/OH_state.json",
+        "https://raw.githubusercontent.com/HangchaoChen/CSE308_GeoJSON/master/State%20GeoJSON/OH_State.json",
         {
           style: style,
           onEachFeature: onEachFeature
@@ -374,7 +282,7 @@ export class MapComponent implements OnInit {
       );
       map.addLayer(OHState);
       ORState = L.geoJson.ajax(
-        "https://raw.githubusercontent.com/HangchaoChen/States_GeoJSON/master/OR_state.json",
+        "https://raw.githubusercontent.com/HangchaoChen/CSE308_GeoJSON/master/State%20GeoJSON/OR_State.json",
         {
           style: style,
           onEachFeature: onEachFeature
@@ -383,7 +291,7 @@ export class MapComponent implements OnInit {
       map.addLayer(ORState);
 
       statesLayer = L.geoJson.ajax(
-        "https://raw.githubusercontent.com/HangchaoChen/States_GeoJSON/master/states_GeoJSON",
+        "https://raw.githubusercontent.com/HangchaoChen/CSE308_GeoJSON/master/States.json",
         {
           style: style,
           onEachFeature: onEachFeature
@@ -393,7 +301,7 @@ export class MapComponent implements OnInit {
 
     function loadILDistrict() {
       ILDistrict = L.geoJson.ajax(
-        "https://raw.githubusercontent.com/HangchaoChen/States_GeoJSON/master/Illinois_congressional_geo_2018.json",
+        "https://raw.githubusercontent.com/HangchaoChen/CSE308_GeoJSON/master/District%20GeoJSON/IL_District.json",
         {
           style: style,
           onEachFeature: onEachFeature
@@ -401,9 +309,10 @@ export class MapComponent implements OnInit {
       );
     }
 
+    //geojson updated
     function loadILPrecinct() {
       ILPrecinct = L.geoJson.ajax(
-        "https://raw.githubusercontent.com/HangchaoChen/States_GeoJSON/master/Illinois_geo.json",
+        "https://raw.githubusercontent.com/HangchaoChen/CSE308_GeoJSON/master/Precinct%20GeoJSON/IL_Precinc.json",
         {
           style: style,
           onEachFeature: onEachFeature
@@ -411,9 +320,10 @@ export class MapComponent implements OnInit {
       );
     }
 
+    //done
     function loadORDistrict() {
       ORDistrict = L.geoJson.ajax(
-        "https://raw.githubusercontent.com/HangchaoChen/States_GeoJSON/master/Oregon_congressional_geo_2018.json",
+        "https://raw.githubusercontent.com/HangchaoChen/CSE308_GeoJSON/master/District%20GeoJSON/OR_District.json",
         {
           style: style,
           onEachFeature: onEachFeature
@@ -431,9 +341,10 @@ export class MapComponent implements OnInit {
       );
     }
 
+    //done
     function loadOHDistrict() {
       OHDistrict = L.geoJson.ajax(
-        "https://raw.githubusercontent.com/HangchaoChen/States_GeoJSON/master/Ohio_congressional_geo_2018.json",
+        "https://raw.githubusercontent.com/HangchaoChen/CSE308_GeoJSON/master/District%20GeoJSON/OH_District.json",
         {
           style: style,
           onEachFeature: onEachFeature
@@ -441,9 +352,10 @@ export class MapComponent implements OnInit {
       );
     }
 
+    //geojson updated
     function loadOHPrecinct() {
       OHPrecinct = L.geoJson.ajax(
-        "https://raw.githubusercontent.com/HangchaoChen/States_GeoJSON/master/Updated%20Precinct%20GeoJSON/OH_Precinct_GeoJSON.json",
+        "https://raw.githubusercontent.com/HangchaoChen/CSE308_GeoJSON/master/Precinct%20GeoJSON/OH_Precinct.json",
         {
           style: style,
           onEachFeature: onEachFeature
@@ -496,10 +408,16 @@ export class MapComponent implements OnInit {
           }
         } else if (map.getZoom() <= 5) {
           map.removeLayer(OHDistrict);
+          map.removeLayer(OHPrecinct);
           addedOHDistrict = false;
+          addedOHPrecinct = false;
           map.removeLayer(ORDistrict);
+          map.removeLayer(ORPrecinct);
           addedORDistrict = false;
+          addedORPrecinct = false;
           map.removeLayer(ILDistrict);
+          map.removeLayer(ILPrecinct);
+          addedILPrecinct = false;
           addedILDistrict = false;
           map.addLayer(OHState);
           map.addLayer(ORState);
@@ -510,9 +428,6 @@ export class MapComponent implements OnInit {
 
     info.update = function(props) {
       //console.log(props);
-      let or = StateID.OREGON;
-      let il = StateID.ILLINOIS;
-      let oh = StateID.OHIO;
       let id = -1;
 
       let total = -1;
@@ -525,63 +440,65 @@ export class MapComponent implements OnInit {
       let two_race = -1;
       let republic = -1;
       let democratic = -1;
+      let others = -1;
+      let winner = "";
+      let vote = "vote_" + selected_year;
       if (props != undefined) {
         let state = props.STATEFP;
-        let vote = "vote_" + selected_year;
         id = props.id;
-        if (id == undefined) {
-          id = props.CD116FP == undefined ? -1 : props.props.CD116FP;
-        }
-        if (props.name == OH || props.name == IL || props.name == OR) {
-          total = parseInt(props.demographic["Total"]);
-          white = parseInt(props.demographic["White"]);
-          black = parseInt(props.demographic["Black or African American"]);
-          indian = parseInt(
-            props.demographic["American Indian and Alaska Native"]
-          );
-          asian = parseInt(props.demographic["Asian"]);
-          other = parseInt(props.demographic["Some Other Race"]);
-          two_race = parseInt(props.demographic["Two or more races"]);
-          republic = parseInt(props.vote.republican);
-          democratic = parseInt(props.vote.democratic);
-        }
-        if (state == or) {
-          total = parseInt(props.demographic["Total"]);
-          white = parseInt(props.demographic["White"]);
-          black = parseInt(props.demographic["Black or African American"]);
-          indian = parseInt(
-            props.demographic["American Indian and Alaska Native"]
-          );
-          asian = parseInt(props.demographic["Asian"]);
-          other = parseInt(props.demographic["Some Other Race"]);
-          two_race = parseInt(props.demographic["Two or more races"]);
-          republic = parseInt(props.vote.republican.Votes);
-          democratic = parseInt(props.vote.democratic.Votes);
-        } else if (state == il) {
-          total = parseInt(props.demographic["Total"]);
-          white = parseInt(props.demographic["White"]);
-          black = parseInt(props.demographic["Black or African American"]);
-          indian = parseInt(
-            props.demographic["American Indian and Alaska Native"]
-          );
-          asian = parseInt(props.demographic["Asian"]);
-          other = parseInt(props.demographic["Some Other Race"]);
-          two_race = parseInt(props.demographic["Two or more races"]);
-          republic = parseInt(props.vote.republican.Votes);
-          democratic = parseInt(props.vote.democratic.Votes);
-        } else if (selectedState == OH) {
-          total = parseInt(props.demographic["Total"]);
-          white = parseInt(props.demographic["White"]);
-          black = parseInt(props.demographic["Black or African American"]);
-          indian = parseInt(
-            props.demographic["American Indian and Alaska Native"]
-          );
-          asian = parseInt(props.demographic["Asian"]);
-          other = parseInt(props.demographic["Some Other Race"]);
-          two_race = parseInt(props.demographic["Two or more races"]);
-          republic = parseInt(props[vote].republican);
-          democratic = parseInt(props[vote].democratic);
-        }
+        // if (id == undefined) {
+        //   id = props.CD116FP == undefined ? -1 : props.props.CD116FP;
+        // }
+        total = parseInt(props.demographic["Total"]);
+        white = parseInt(props.demographic["White"]);
+        black = parseInt(props.demographic["Black or African American"]);
+        indian = parseInt(
+          props.demographic["American Indian and Alaska Native"]
+        );
+        asian = parseInt(props.demographic["Asian"]);
+        other = parseInt(props.demographic["Some Other Race"]);
+        two_race = parseInt(props.demographic["Two or more races"]);
+        republic = parseInt(props[vote].republican);
+        democratic = parseInt(props[vote].democratic);
+        others = parseInt(props[vote].others);
+        winner = props[vote].winner;
+        winner = winner.charAt(0).toUpperCase() + winner.slice(1);
+      } else if (selectedState) {
+        id = state_voting_data[selectedState].name;
+        total = parseInt(
+          state_voting_data["" + selectedState].demographic["Total"]
+        );
+        white = parseInt(
+          state_voting_data["" + selectedState].demographic["White"]
+        );
+        black = parseInt(
+          state_voting_data["" + selectedState].demographic[
+            "Black or African American"
+          ]
+        );
+        indian = parseInt(
+          state_voting_data["" + selectedState].demographic[
+            "American Indian and Alaska Native"
+          ]
+        );
+        asian = parseInt(
+          state_voting_data["" + selectedState].demographic["Asian"]
+        );
+        other = parseInt(
+          state_voting_data["" + selectedState].demographic["Some Other Race"]
+        );
+        two_race = parseInt(
+          state_voting_data["" + selectedState].demographic["Two or more races"]
+        );
+        republic = parseInt(
+          state_voting_data["" + selectedState][vote].republican
+        );
+        democratic = parseInt(
+          state_voting_data["" + selectedState][vote].democratic
+        );
+        others = parseInt(state_voting_data["" + selectedState][vote].others);
+        winner = state_voting_data["" + selectedState][vote].winner;
+        winner = winner.charAt(0).toUpperCase() + winner.slice(1);
       }
 
       this._div.innerHTML = `<h4>Demographic Data</h4> ${
@@ -622,6 +539,12 @@ export class MapComponent implements OnInit {
             "<br/>" +
             "Democratic : " +
             (democratic == -1 ? "" : democratic) +
+            "<br/>" +
+            "Others : " +
+            (others == -1 ? "" : others) +
+            "<br/>" +
+            "Winner Party : " +
+            (winner == "" ? "" : winner) +
             "<br/>"
           : "ID: " +
             (id == -1 ? "" : id) +
@@ -657,6 +580,12 @@ export class MapComponent implements OnInit {
             "<br/>" +
             "Democratic : " +
             (democratic == -1 ? "" : democratic) +
+            "<br/>" +
+            "Others : " +
+            (others == -1 ? "" : others) +
+            "<br/>" +
+            "Winner Party : " +
+            (winner == "" ? "" : winner) +
             "<br/>"
       }`;
     };
@@ -665,13 +594,12 @@ export class MapComponent implements OnInit {
 
     function style(feature) {
       //console.log("color: ", feature);
-      let state = feature.properties.STATEFP;
-      let district = feature.properties.CD116FP;
+      let district = feature.properties.NAMELSAD;
       let id = feature.properties.id;
       // console.log("id: ", id);
       let color = "White";
       if (district !== undefined) {
-        color = colors[district - 1];
+        color = colors[id - 1];
       }
       //console.log("feature: ", feature);
 
@@ -807,6 +735,7 @@ export class MapComponent implements OnInit {
 
     function zoomToFeature(e) {
       let name = e.target.feature.properties.name;
+      //console.log("name: ", e.target.feature);
       if (name == "Illinois") {
         changeState(IL);
         map.fitBounds(e.target.getBounds(), { maxZoom: 6 });
@@ -816,7 +745,7 @@ export class MapComponent implements OnInit {
       } else if (name == "Ohio") {
         changeState(OH);
         map.fitBounds(e.target.getBounds(), { maxZoom: 6 });
-      } else if (name == undefined) {
+      } else {
         //distrcts doesn't have name, they only have id
         if (selectedState == "Illinois") {
           addILPrecinct();
@@ -840,5 +769,114 @@ export class MapComponent implements OnInit {
     map.attributionControl.addAttribution(
       'Population data &copy; <a href="http://census.gov/">US Census Bureau</a>'
     );
+
+    this.mapService.selectedState.subscribe(stateName => {
+      //console.log("changing state name: ", stateName);
+      if (stateName == this.OH) {
+        selectedState = OH;
+        statesLayer.eachLayer(layer => {
+          if (layer.feature.properties.name == stateName) {
+            selectOHDistrict();
+            map.flyToBounds(layer, { maxZoom: 6 });
+            info.update(layer.feature.properties);
+          }
+        });
+        // OHPrecinct.eachLayer(layer => {
+        //   //console.log("~~~~~~coloring precinct level~~~~~~~~");
+        //   let id = layer.feature.properties.id;
+        //   if (id_map.has(id)) {
+        //     layer.setStyle({
+        //       weight: 1,
+        //       opacity: 0.7,
+        //       fillOpacity: 0.7,
+        //       color: id_map.get(id),
+        //       fillColor: id_map.get(id)
+        //     });
+        //   }
+        //   console.log("~~~~~~~~~~~~coloring done~~~~~~~~~");
+        // });
+        baseLayer.removeLayer(ORDistrict);
+        baseLayer.removeLayer(ORPrecinct);
+        baseLayer.removeLayer(ILDistrict);
+        baseLayer.removeLayer(ILPrecinct);
+      } else if (stateName == this.IL) {
+        selectedState = IL;
+        statesLayer.eachLayer(layer => {
+          if (layer.feature.properties.name == stateName) {
+            selectILDistrict();
+            map.flyToBounds(layer, { maxZoom: 6 });
+            info.update(layer.feature.properties);
+          }
+        });
+        baseLayer.removeLayer(ORDistrict);
+        baseLayer.removeLayer(ORPrecinct);
+        baseLayer.removeLayer(OHDistrict);
+        baseLayer.removeLayer(OHPrecinct);
+      } else if (stateName == this.OR) {
+        selectedState = OR;
+        statesLayer.eachLayer(layer => {
+          if (layer.feature.properties.name == stateName) {
+            selectORDistrict();
+            map.flyToBounds(layer, { maxZoom: 6 });
+            info.update(layer.feature.properties);
+          }
+        });
+        baseLayer.removeLayer(OHDistrict);
+        baseLayer.removeLayer(OHPrecinct);
+        baseLayer.removeLayer(ILDistrict);
+        baseLayer.removeLayer(ILPrecinct);
+      }
+    });
+    this.mapService.selectedYear.subscribe(year => {
+      this.selected_year = year;
+      selected_year = this.selected_year;
+      if (selectedState == this.IL) {
+      } else if (selectedState == this.OH) {
+        for (let id of id_map.keys()) {
+          console.log(id);
+        }
+      } else if (selectedState == this.OR) {
+        id_map.forEach(element => {
+          // console.log(element);
+          //clear the precinct level map in here
+        });
+      }
+      this.id_map.clear();
+      id_map.clear();
+      id_map = this.id_map;
+    });
+
+    this.mapService.p1_data.subscribe(data => {
+      if (selectedState == this.OH) {
+        update_map(data, OHPrecinct);
+        // let done = data["result"].isFinal;
+        // this.p1Data = data["result"].clusters;
+        // for (var key of Object.keys(this.p1Data)) {
+        //   let x = this.stringToColour(key);
+        //   for (let i = 0; i < this.p1Data[key].length; i++) {
+        //     this.id_map.set(this.p1Data[key][i], x);
+        //   }
+        // }
+        // id_map = this.id_map;
+        // OHPrecinct.eachLayer(layer => {
+        //   let id = layer.feature.properties.id;
+        //   if (this.id_map.has(id)) {
+        //     layer.setStyle({
+        //       weight: 1,
+        //       opacity: 0.7,
+        //       fillOpacity: 0.7,
+        //       color: id_map.get(id),
+        //       fillColor: id_map.get(id)
+        //     });
+        //   }
+        // });
+        // this.mapService.change_p1_status(done);
+        // this.mapService.change_p1_color_status(true);
+      } else if (selectedState == this.IL) {
+        update_map(data, ILPrecinct);
+      } else if (selectedState == this.OR) {
+        update_map(data, ORPrecinct);
+      }
+    });
   }
 }

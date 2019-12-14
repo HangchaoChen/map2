@@ -152,20 +152,35 @@
     <ng-template #unCheckedTemplate><i nz-icon nzType="close"></i></ng-template>
   </li>
   <li nz-menu-item>
-    <button nz-button nzType="primary" [nzSize]="large" nzShape="round" (click)="onClickApply()">
+    <button nz-button nzType="primary" [nzSize]="large" nzShape="round" (click)="onClickApply()"
+      [nzLoading]="apply_done">
       Apply
     </button>
   </li>
   <li nz-menu-item>
-    <button nz-button nzType="primary" [nzSize]="large" nzShape="round" (click)="onClickRunP1()">
-      Run Phrase 1
-    </button>
+    <div *ngIf="running_p1">
+      <button nz-button nzType="primary" [nzSize]="large" nzShape="round" (click)="onClickRunP1()"
+        [nzLoading]="running_p1" disabled>
+        Run Phrase 1
+      </button>
+    </div>
+    <div *ngIf="!running_p1">
+      <button #elseBlock nz-button nzType="primary" [nzSize]="large" nzShape="round" (click)="onClickRunP1()"
+        [nzLoading]="running_p1">
+        Run Phrase 1
+      </button>
+    </div>
   </li>
-  <div *ngIf="show_next">
-    <li nz-menu-item>
+  <li nz-menu-item>
+    <div *ngIf="show_next">
       <button nz-button nzType="primary" [nzSize]="large" nzShape="round" (click)="onClickNext()">
         Next
       </button>
-    </li>
-  </div>
+    </div>
+  </li>
 </ul>
+
+<div *ngIf="  setting_has_error ">
+  <nz-alert nzType="error" nzMessage="Error" nzDescription="This is an error on setting." nzShowIcon>
+  </nz-alert>
+</div>
