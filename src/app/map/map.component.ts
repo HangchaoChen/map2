@@ -774,6 +774,7 @@ export class MapComponent implements OnInit {
       //console.log("changing state name: ", stateName);
       if (stateName == this.OH) {
         selectedState = OH;
+        this.stateName = selectedState;
         statesLayer.eachLayer(layer => {
           if (layer.feature.properties.name == stateName) {
             selectOHDistrict();
@@ -801,6 +802,7 @@ export class MapComponent implements OnInit {
         baseLayer.removeLayer(ILPrecinct);
       } else if (stateName == this.IL) {
         selectedState = IL;
+        this.stateName = selectedState;
         statesLayer.eachLayer(layer => {
           if (layer.feature.properties.name == stateName) {
             selectILDistrict();
@@ -814,6 +816,7 @@ export class MapComponent implements OnInit {
         baseLayer.removeLayer(OHPrecinct);
       } else if (stateName == this.OR) {
         selectedState = OR;
+        this.stateName = selectedState;
         statesLayer.eachLayer(layer => {
           if (layer.feature.properties.name == stateName) {
             selectORDistrict();
@@ -830,17 +833,14 @@ export class MapComponent implements OnInit {
     this.mapService.selectedYear.subscribe(year => {
       this.selected_year = year;
       selected_year = this.selected_year;
-      if (selectedState == this.IL) {
-      } else if (selectedState == this.OH) {
-        for (let id of id_map.keys()) {
-          console.log(id);
+      statesLayer.eachLayer(layer => {
+        // console.log("t1: ", layer.feature.properties.name);
+        // console.log("t2: ", this.stateName);
+        if (layer.feature.properties.name == this.stateName) {
+          // console.log("update?: ", this.stateName);
+          info.update(layer.feature.properties);
         }
-      } else if (selectedState == this.OR) {
-        id_map.forEach(element => {
-          // console.log(element);
-          //clear the precinct level map in here
-        });
-      }
+      });
       this.id_map.clear();
       id_map.clear();
       id_map = this.id_map;
