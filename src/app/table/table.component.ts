@@ -24,6 +24,7 @@ export class TableComponent implements OnInit {
   show_old = false;
 
   show_new = false;
+
   on_click_old() {
     this.show_old = true;
   }

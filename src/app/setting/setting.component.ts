@@ -41,6 +41,8 @@ export class SettingComponent implements OnInit {
 
   done = false;
 
+  done2 = false;
+
   apply_done = false;
 
   running_p1 = false;
@@ -75,7 +77,6 @@ export class SettingComponent implements OnInit {
     console.log("numberOfDistrict: ", this.numberOfDistrict);
     console.log("update: ", this.updateBehavior);
 
-    let w = new Map();
     this.weights = [
       this.Reock_Compactness,
       this.Convex_Hull_Compactness,
@@ -88,6 +89,7 @@ export class SettingComponent implements OnInit {
       this.Population_Homogeneity,
       this.Population_Equality
     ];
+    let w = {};
     for (let i = 0; i < this.weights.length; i++) {
       if (this.weights[i] > 0) {
         // console.log(
@@ -95,11 +97,12 @@ export class SettingComponent implements OnInit {
         //   " is added, value is : ",
         //   this.weights[i]
         // );
-        w.set(this.weight_enum[i].toString(), this.weights[i] / 100);
+        w[this.weight_enum[i].toString()] = this.weights[i] / 100;
         // console.log("added to w", w);
       }
     }
     console.log("weights: ", w);
+    // console.log("t: ", t);
     // console.log("target group: ", this.listOfSelectedValue);
     // console.log("is combined: ", this.is_combined);
     // console.log("max :", this.max);
@@ -157,10 +160,11 @@ export class SettingComponent implements OnInit {
     var connection = this.http
       .post(url, { headers: header })
       .subscribe((result: any) => {
-        this.mapService.set_p1_data(result);
-        let done = result["result"].isFinal;
+        this.mapService.set_p2_data(result);
+        console.log("p2 first run: ", result);
+        let done2 = result["result"].isFinal;
         connection.unsubscribe();
-        return done;
+        return done2;
       });
   }
 
@@ -175,6 +179,23 @@ export class SettingComponent implements OnInit {
       .post(url, { headers: header })
       .subscribe((result: any) => {
         this.mapService.set_p1_data(result);
+        let done = result["result"].isFinal;
+        connection.unsubscribe();
+        return done;
+      });
+  }
+
+  auto_run_2() {
+    console.log("auto run2");
+    let url = "http://localhost:8080/setting/phase2";
+    let header = new HttpHeaders()
+      .set("Content-Type", "application/json")
+      .set("Accept", "application/json");
+
+    var connection = this.http
+      .post(url, { headers: header })
+      .subscribe((result: any) => {
+        this.mapService.set_p2_data(result);
         let done = result["result"].isFinal;
         connection.unsubscribe();
         return done;
@@ -213,8 +234,11 @@ export class SettingComponent implements OnInit {
     this.mapService.p1_color_status.subscribe(status => {
       //console.log("test: ", status);
       if (status && !this.updateBehavior) {
-        // if (!this.done) {
-        this.auto_run();
+        if (!this.done) {
+          this.auto_run();
+        } else {
+          console.log("p1 done");
+        }
         //   this.running_p1 = true;
         // } else {
         //   this.running_p1 = false;
@@ -222,9 +246,23 @@ export class SettingComponent implements OnInit {
       }
     });
 
+    this.mapService.p2_color_status.subscribe(status => {
+      if (status && !this.updateBehavior) {
+        if (!this.done2) {
+          this.auto_run_2();
+        } else {
+          console.log("p2 done");
+        }
+      }
+    });
+
     this.mapService.p1_status.subscribe(status => {
       //console.log("changing done");
       this.done = status;
+    });
+
+    this.mapService.p2_status.subscribe(status => {
+      this.done2 = status;
     });
   }
 }

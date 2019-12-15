@@ -8,6 +8,16 @@
       </nz-select>
     </ul>
   </li>
+  <li nz-menu-group nzTitle="Color Theme">
+    <ul>
+      <nz-select [(ngModel)]="selected_theme" (ngModelChange)="change_color_theme()" nzAllowClear
+        nzPlaceHolder="Choose a color">
+        <nz-option nzValue="Red" nzLabel="Red"></nz-option>
+        <nz-option nzValue="Blue" nzLabel="Blue"></nz-option>
+        <nz-option nzValue="Green" nzLabel="Green"></nz-option>
+      </nz-select>
+    </ul>
+  </li>
   <li nz-menu-group nzTitle="Population Threshold">
     <ul>
       <nz-input-number [(ngModel)]="polulationThreshold" [nzFormatter]="formatterPercent" [nzMin]="0" [nzMax]="100"

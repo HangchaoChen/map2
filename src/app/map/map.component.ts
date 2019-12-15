@@ -25,6 +25,7 @@ export class MapComponent implements OnInit {
   stateName;
   selected_year;
   p1Data;
+  p2Data;
   id_map = new Map();
 
   load_voting_data(data) {
@@ -143,6 +144,7 @@ export class MapComponent implements OnInit {
 
     let update_map = (data, layer) => {
       let done = data["result"].isFinal;
+      console.log("is it done?: ", done);
 
       // if (first_p1) {
       //   this.p1Data = data["result"].clusters;
@@ -173,6 +175,40 @@ export class MapComponent implements OnInit {
       });
       this.mapService.change_p1_status(done);
       this.mapService.change_p1_color_status(true);
+    };
+
+    let update_map_p2 = (data, layer) => {
+      let done = data["result"].isFinal;
+
+      // if (first_p1) {
+      //   this.p1Data = data["result"].clusters;
+      //   first_p1 = false;
+      // } else {
+      this.p2Data = data.result.clusters;
+      //}
+
+      for (var key of Object.keys(this.p1Data)) {
+        let x = "#" + color_generator.get_random_color(key);
+        //console.log("x: ", x);
+        for (let i = 0; i < this.p2Data[key].length; i++) {
+          this.id_map.set(this.p2Data[key][i], x);
+        }
+      }
+      id_map = this.id_map;
+      layer.eachLayer(layers => {
+        let id = layers.feature.properties.id;
+        if (this.id_map.has(id)) {
+          layers.setStyle({
+            weight: 1,
+            opacity: 0.7,
+            fillOpacity: 0.7,
+            color: id_map.get(id),
+            fillColor: id_map.get(id)
+          });
+        }
+      });
+      this.mapService.change_p2_status(done);
+      this.mapService.change_p2_color_status(true);
     };
 
     const IL = this.IL;
@@ -853,6 +889,15 @@ export class MapComponent implements OnInit {
       id_map.clear();
       id_map = this.id_map;
     });
+    this.mapService.p2_data.subscribe(data => {
+      if (selectedState == this.OH) {
+        update_map_p2(data, OHPrecinct);
+      } else if (selectedState == this.IL) {
+        update_map_p2(data, ILPrecinct);
+      } else if (selectedState == this.OR) {
+        update_map_p2(data, ORPrecinct);
+      }
+    });
 
     this.mapService.p1_data.subscribe(data => {
       if (selectedState == this.OH) {
@@ -885,6 +930,29 @@ export class MapComponent implements OnInit {
       } else if (selectedState == this.OR) {
         update_map(data, ORPrecinct);
       }
+    });
+
+    function update_theme_color(data_layer) {
+      let new_color = "";
+      data_layer.eachLayer(layer => {
+        let id = layer.feature.properties.id;
+        new_color = colors[id - 1];
+        layer.setStyle({
+          weight: 1,
+          opacity: 0.7,
+          fillOpacity: 0.7,
+          color: new_color,
+          fillColor: new_color
+        });
+      });
+    }
+    this.mapService.color_theme.subscribe(color => {
+      colors = color_generator.get_theme_color(color);
+      // console.log("color changed: ", color);
+      // console.log(colors);
+      update_theme_color(ILDistrict);
+      update_theme_color(OHDistrict);
+      update_theme_color(ORDistrict);
     });
   }
 }

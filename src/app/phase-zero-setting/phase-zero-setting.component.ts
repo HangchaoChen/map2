@@ -24,6 +24,8 @@ export class PhaseZeroSettingComponent implements OnInit {
   partyThreshold = 0;
   state_summary: string;
   state_constitution;
+  selected_theme;
+
   onTableOpen(): void {
     this.showTable = true;
   }
@@ -45,6 +47,9 @@ export class PhaseZeroSettingComponent implements OnInit {
     this.mapService.changeYear(this.selectedYear);
   }
 
+  change_color_theme() {
+    this.mapService.change_color_theme(this.selected_theme);
+  }
   formatterPercent = (value: number) => `${value} %`;
 
   loadP0data() {
