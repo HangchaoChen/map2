@@ -1,3 +1,4 @@
+import { HttpClient, HttpHeaders } from "@angular/common/http";
 import { MapService } from "./../map.service";
 import { StateInfo } from "./../state.info";
 import { Component, OnInit } from "@angular/core";
@@ -21,19 +22,48 @@ export class TableComponent implements OnInit {
 
   statewide_voting_patterns = this.state_info.get_message();
 
-  show_old = false;
-
   show_new = false;
 
-  on_click_old() {
-    this.show_old = true;
+  loading_data = false;
+
+  listOfData;
+
+  on_click_apply() {
+    console.log("state name : ", this.stateName);
+    console.log("max: ", this.max);
+    console.log("min: ", this.min);
+    console.log("minority population: ", this.listOfSelectedValue);
+    console.log("is combined: ", this.is_combined);
+
+    this.loading_data = true;
+
+    let url = "http://localhost:8080/setting/specifyMinorityPopulation";
+    let header = new HttpHeaders().set("Content-Type", "application/json");
+    let body = {
+      stateName: this.stateName,
+      status: "OLD",
+      maximumPercentage: this.max,
+      minimumPercentage: this.min,
+      minorityPopulations: this.listOfSelectedValue,
+      isCombined: this.is_combined
+    };
+
+    let connection = this.http.post(url, body, { headers: header }).subscribe(
+      (data: any) => {
+        this.listOfData = data.result["Minority Population Distribution Table"];
+        console.log("data loaded:", data);
+        this.loading_data = false;
+      },
+      err => {
+        if (err) {
+          console.log("error on table.ts, can't get data");
+          this.loading_data = false;
+        }
+      }
+    );
   }
 
-  old_table_close() {
-    this.show_old = false;
-  }
-
-  on_click_new() {
+  on_click_view() {
     this.show_new = true;
   }
 
@@ -41,7 +71,7 @@ export class TableComponent implements OnInit {
     this.show_new = false;
   }
 
-  constructor(private mapService: MapService) {}
+  constructor(private http: HttpClient, private mapService: MapService) {}
 
   ngOnInit() {
     const children: Array<{ label: string; value: string }> = [];

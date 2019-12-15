@@ -100,7 +100,7 @@ export class PhaseZeroSettingComponent implements OnInit {
   }
 
   ngOnInit() {
-    this.loadP0data();
+    //this.loadP0data();
     this.loadVotingIncumbents("");
     // console.log("dis: ", this.districtData);
     this.mapService.selectedState.subscribe(stateName => {

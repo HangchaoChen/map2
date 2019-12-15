@@ -35,62 +35,34 @@
   </li>
 
   <li nz-menu-item>
-    <button nz-button nzType="primary" [nzSize]="large" nzShape="round" (click)="on_click_old()">
-      View Distribution (old)
+    <button [nzLoading]="loading_data" nz-button nzType="primary" [nzSize]="large" nzShape="round"
+      (click)="on_click_apply()">
+      Apply
     </button>
   </li>
   <li nz-menu-item>
-    <button nz-button nzType="primary" [nzSize]="large" nzShape="round" (click)="on_click_new()">
-      View Distribution (new)
+    <button nz-button nzType="primary" [nzSize]="large" nzShape="round" (click)="on_click_view()">
+      View Distribution
     </button>
   </li>
 </ul>
 
 <nz-drawer [nzBodyStyle]="{ height: 'calc(100% - 55px)', overflow: 'auto' }" [nzMaskClosable]="false" [nzWidth]="900"
-  [nzVisible]="show_old" nzTitle="Table" (nzOnClose)="old_table_close()">
+  [nzVisible]="show_new" nzTitle="Table" (nzOnClose)="new_table_close()">
   <nz-table #basicTable [nzData]="listOfData">
     <thead>
       <tr>
-        <th>Precinct Name</th>
         <th>Demographic Group</th>
-        <th>Population</th>
-        <th>Winning Votes</th>
-        <th>Total Votes</th>
-        <th>Winning Party</th>
         <th>Percentage</th>
-        <th>Eligibility</th>
+        <th>Population</th>
       </tr>
     </thead>
     <tbody>
       <tr *ngFor="let data of basicTable.data">
-        <td>{{ data.precinctName }}</td>
         <td>{{ data.demographicGroup }}</td>
-        <td>{{ data.population }} </td>
-        <td>{{ data.winningVotes }}</td>
-        <td>{{ data.totalVotes}} </td>
-        <td>{{ data.winningParty }} </td>
         <td>{{ data.percentage }} </td>
-        <td>{{ data.eligible }}</td>
-      </tr>
-    </tbody>
-  </nz-table>
-</nz-drawer>
+        <td>{{ data.population }} </td>
 
-<nz-drawer [nzBodyStyle]="{ height: 'calc(100% - 55px)', overflow: 'auto' }" [nzMaskClosable]="false" [nzWidth]="730"
-  [nzVisible]="show_new" nzTitle="{{state_summary}}" (nzOnClose)="new_table_close()">
-  <nz-table #districtTable [nzData]="districtData">
-    <thead>
-      <tr>
-        <th>District ID</th>
-        <th>Representative Name</th>
-        <th>Party Affiliation</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr *ngFor="let data of districtTable.data">
-        <td>{{ data.id }}</td>
-        <td>{{ data.name }}</td>
-        <td>{{ data.party }} </td>
       </tr>
     </tbody>
   </nz-table>
