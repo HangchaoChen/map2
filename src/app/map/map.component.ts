@@ -466,6 +466,12 @@ export class MapComponent implements OnInit {
           map.addLayer(OHState);
           map.addLayer(ORState);
           map.addLayer(ILState);
+          baseLayer.removeLayer(OHDistrict);
+          baseLayer.removeLayer(OHPrecinct);
+          baseLayer.removeLayer(ORDistrict);
+          baseLayer.removeLayer(ORPrecinct);
+          baseLayer.removeLayer(OHDistrict);
+          baseLayer.removeLayer(OHPrecinct);
         }
       }
     });
