@@ -8,6 +8,7 @@ export class MapService {
   private userSelectedState = new BehaviorSubject("");
   private userSelectedYear = new BehaviorSubject("");
   private algo_p1_data = new BehaviorSubject(JSON);
+  private p1_first = new BehaviorSubject(true);
   private p1_done = new BehaviorSubject(false);
   private p1_coloring_done = new BehaviorSubject(false);
 
@@ -16,6 +17,7 @@ export class MapService {
   p1_data = this.algo_p1_data.asObservable();
   p1_status = this.p1_done.asObservable();
   p1_color_status = this.p1_coloring_done.asObservable();
+  p1_first_time = this.p1_first.asObservable();
 
   constructor() {}
 
@@ -28,9 +30,13 @@ export class MapService {
   }
 
   set_p1_data(data: any) {
-    console.log("data changed");
+    //console.log("data changed");
     this.algo_p1_data.next(data);
-    console.log("what is it?:", data);
+    //console.log("what is it?:", data);
+  }
+
+  change_p1_first_time(status: boolean) {
+    this.p1_first.next(status);
   }
 
   change_p1_status(status) {

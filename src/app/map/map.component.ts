@@ -92,6 +92,7 @@ export class MapComponent implements OnInit {
     var baseLayer;
     var color_generator = new Color();
     var state_voting_data = this.state_voting_data;
+    var first_p1 = true;
 
     var addedOHDistrict = false;
     var addedORDistrict = false;
@@ -142,10 +143,17 @@ export class MapComponent implements OnInit {
 
     let update_map = (data, layer) => {
       let done = data["result"].isFinal;
-      this.p1Data = data["result"].clusters;
+
+      // if (first_p1) {
+      //   this.p1Data = data["result"].clusters;
+      //   first_p1 = false;
+      // } else {
+      this.p1Data = data.result.clusters;
+      //}
+
       for (var key of Object.keys(this.p1Data)) {
         let x = "#" + color_generator.get_random_color(key);
-        console.log("x: ", x);
+        //console.log("x: ", x);
         for (let i = 0; i < this.p1Data[key].length; i++) {
           this.id_map.set(this.p1Data[key][i], x);
         }
@@ -312,7 +320,7 @@ export class MapComponent implements OnInit {
     //geojson updated
     function loadILPrecinct() {
       ILPrecinct = L.geoJson.ajax(
-        "https://raw.githubusercontent.com/HangchaoChen/CSE308_GeoJSON/master/Precinct%20GeoJSON/IL_Precinc.json",
+        "https://raw.githubusercontent.com/HangchaoChen/CSE308_GeoJSON/master/Precinct%20GeoJSON/IL_Precinct.json",
         {
           style: style,
           onEachFeature: onEachFeature
@@ -333,7 +341,7 @@ export class MapComponent implements OnInit {
 
     function loadORPrecinct() {
       ORPrecinct = L.geoJson.ajax(
-        "https://raw.githubusercontent.com/HangchaoChen/States_GeoJSON/master/Oregon_geo_precinct_2016.json",
+        "https://raw.githubusercontent.com/HangchaoChen/CSE308_GeoJSON/master/Precinct%20GeoJSON/OR_Precinct.json",
         {
           style: style,
           onEachFeature: onEachFeature
@@ -458,11 +466,11 @@ export class MapComponent implements OnInit {
         asian = parseInt(props.demographic["Asian"]);
         other = parseInt(props.demographic["Some Other Race"]);
         two_race = parseInt(props.demographic["Two or more races"]);
-        republic = parseInt(props[vote].republican);
-        democratic = parseInt(props[vote].democratic);
-        others = parseInt(props[vote].others);
+        republic = parseInt(props[vote].Republican);
+        democratic = parseInt(props[vote].Democratic);
+        others = parseInt(props[vote].Others);
         winner = props[vote].winner;
-        winner = winner.charAt(0).toUpperCase() + winner.slice(1);
+        //winner = winner.charAt(0).toUpperCase() + winner.slice(1);
       } else if (selectedState) {
         id = state_voting_data[selectedState].name;
         total = parseInt(
@@ -526,11 +534,11 @@ export class MapComponent implements OnInit {
             "Native Hawaiian: " +
             (hawaiian == -1 ? "" : hawaiian) +
             "<br/>" +
-            "Other : " +
-            (other == -1 ? "" : other) +
-            "<br/>" +
             "Mixed Race : " +
             (two_race == -1 ? "" : two_race) +
+            "<br/>" +
+            "Others : " +
+            (other == -1 ? "" : other) +
             "<br/>" +
             "<br/>" +
             "<h4>Voting data</h4>" +
@@ -567,11 +575,11 @@ export class MapComponent implements OnInit {
             "Native Hawaiian: " +
             (hawaiian == -1 ? "" : hawaiian) +
             "<br/>" +
-            "Other : " +
-            (other == -1 ? "" : other) +
-            "<br/>" +
             "Mixed Race : " +
             (two_race == -1 ? "" : two_race) +
+            "<br/>" +
+            "Others : " +
+            (other == -1 ? "" : other) +
             "<br/>" +
             "<br/>" +
             "<h4>Voting data</h4>" +

@@ -1,5 +1,5 @@
 [nz-menu] {
-  width: 232px;
+  width: 300px;
   height: 100%;
 }
 nz-select {
@@ -12,4 +12,9 @@ nz-input-number {
 [nz-button] {
   margin-right: 8px;
   margin-bottom: 12px;
+}
+
+nz-alert {
+  margin-bottom: 12px;
+  width: 250px;
 }

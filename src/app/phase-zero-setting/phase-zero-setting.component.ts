@@ -23,6 +23,7 @@ export class PhaseZeroSettingComponent implements OnInit {
   districtData;
   partyThreshold = 0;
   state_summary: string;
+  state_constitution;
   onTableOpen(): void {
     this.showTable = true;
   }
@@ -55,11 +56,18 @@ export class PhaseZeroSettingComponent implements OnInit {
     });
   }
 
-  loadVotingIncumbents() {
-    let url =
-      "https://raw.githubusercontent.com/HangchaoChen/States_GeoJSON/master/representatives_data_2018.json";
+  loadVotingIncumbents(year) {
+    let url;
+    if (year == "CONGRESSIONAL_2016" || year == "PRESIDENTIAL_2016") {
+      url =
+        "https://raw.githubusercontent.com/HangchaoChen/CSE308_GeoJSON/master/Representative%20Summary/2016.json";
+    } else {
+      url =
+        "https://raw.githubusercontent.com/HangchaoChen/CSE308_GeoJSON/master/Representative%20Summary/2018.json";
+    }
     this.http.get(url).subscribe((json: any) => {
       this.District_Voting_Incumbents = json;
+      console.log("voting data reloaded:", this.District_Voting_Incumbents);
     });
   }
 
@@ -88,7 +96,7 @@ export class PhaseZeroSettingComponent implements OnInit {
 
   ngOnInit() {
     this.loadP0data();
-    this.loadVotingIncumbents();
+    this.loadVotingIncumbents("");
     // console.log("dis: ", this.districtData);
     this.mapService.selectedState.subscribe(stateName => {
       this.stateName = stateName;
@@ -97,10 +105,25 @@ export class PhaseZeroSettingComponent implements OnInit {
         stateName == this.OH ||
         stateName == this.OR
       ) {
-        console.log("state name:~~", stateName);
+        //console.log("state name:~~", stateName);
         this.districtData = this.District_Voting_Incumbents[stateName];
         let summary = stateName + "_Summary";
         this.state_summary = this.District_Voting_Incumbents[summary];
+        if (stateName == this.IL) {
+          this.state_constitution =
+            "Please read state constitution before continue: \n" +
+            "http://www.ilga.gov/commission/lrb/conmain.htm";
+        } else if (stateName == this.OH) {
+          this.state_constitution =
+            "Please read state constitution before continue: \n" +
+            "https://www.legislature.ohio.gov/laws/ohio-constitution";
+        } else if (stateName == this.OR) {
+          this.state_constitution =
+            "Please read state constitution before continue: \n" +
+            "https://sos.oregon.gov/blue-book/Pages/state-constitution.aspx";
+        } else {
+          this.state_constitution = "Select a state to view more info";
+        }
       }
     });
     this.mapService.selectedYear.subscribe(year => {

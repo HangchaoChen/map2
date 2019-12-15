@@ -172,15 +172,21 @@
     </div>
   </li>
   <li nz-menu-item>
+    <button nz-button nzType="primary" [nzSize]="large" nzShape="round" (click)="onClickRunP2()">
+      Run Phrase 2
+    </button>
+  </li>
+  <li nz-menu-item>
     <div *ngIf="show_next">
       <button nz-button nzType="primary" [nzSize]="large" nzShape="round" (click)="onClickNext()">
         Next
       </button>
     </div>
   </li>
-</ul>
 
-<div *ngIf="  setting_has_error ">
-  <nz-alert nzType="error" nzMessage="Error" nzDescription="This is an error on setting." nzShowIcon>
-  </nz-alert>
-</div>
+  <div *ngIf="  setting_has_error ">
+    <nz-alert nzType="error" nzMessage="Error" nzDescription="This is an error on setting." nzShowIcon>
+    </nz-alert>
+  </div>
+
+</ul>

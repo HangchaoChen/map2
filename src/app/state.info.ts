@@ -94,6 +94,28 @@ const voting_data = {
   }
 };
 
+enum weight_names {
+  REOCK_COMPACTNESS,
+  CONVEX_HULL_COMPACTNESS,
+  EDGE_COMPACTNESS,
+  GERRYMANDER_REPUBLICAN,
+  GERRYMANDER_DEMOCRAT,
+  PARTISAN_FAIRNESS,
+  EFFICIENCY_GAP,
+  COMPETITIVENESS,
+  POPULATION_HOMOGENEITY,
+  POPULATION_EQUALITY
+}
+
+enum target_populations {
+  AFRICAN_AMERICAN,
+  AMERICAN_INDIAN_AND_ALASKA_NATIVE,
+  ASIAN,
+  NATIVE_HAWAIIAN_AND_OTHER_PACIFIC_ISLANDER,
+  TWO_OR_MORE_RACES,
+  SOME_OTHER_RACE
+}
+
 export class StateInfo {
   message = "test messgae ";
   get_message() {
@@ -101,5 +123,24 @@ export class StateInfo {
   }
   get_voting_data() {
     return voting_data;
+  }
+
+  get_weight_enum() {
+    return weight_names;
+  }
+
+  get_target_enum(i) {
+    return target_populations[i];
+  }
+  get_target_enum_lower(i) {
+    let lower = [
+      "Black & African American",
+      "American Indian",
+      "Asian",
+      "Native Hawaiian",
+      "Mixed Race",
+      "Others"
+    ];
+    return lower[i];
   }
 }
