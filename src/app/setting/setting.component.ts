@@ -53,6 +53,8 @@ export class SettingComponent implements OnInit {
 
   mm_data;
 
+  mm_data_new;
+
   loading_mm = false;
 
   view_score = false;
@@ -76,6 +78,28 @@ export class SettingComponent implements OnInit {
   onClickMM() {
     this.loading_mm = true;
     this.view_mm = true;
+    let url = "http://localhost:8080/setting/DisplayMajorityMinorityResult";
+    let connection = this.http.get(url).subscribe(
+      (data: any) => {
+        this.mm_data = data.result.oldDistrictData;
+        this.mm_data_new = data.result.newDistrictData;
+        let i = 0;
+        this.mm_data.forEach(element => {
+          this.mm_data_new[i].name = element.name;
+          i++;
+          console.log(element.name);
+          console.log("new: ", this.mm_data_new);
+        });
+        this.loading_mm = false;
+        connection.unsubscribe();
+      },
+      err => {
+        if (err) {
+          console.log("error happened");
+          this.loading_mm = false;
+        }
+      }
+    );
   }
   close_MM() {
     this.view_mm = false;

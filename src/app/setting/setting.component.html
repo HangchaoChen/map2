@@ -210,26 +210,32 @@
   <nz-table #mmTable [nzData]="mm_data">
     <thead>
       <tr>
-        <th>Precinct Name</th>
-        <th>Demographic Group</th>
-        <th>Population</th>
-        <th>Winning Votes</th>
-        <th>Total Votes</th>
-        <th>Winning Party</th>
-        <th>Percentage</th>
-        <th>Eligibility</th>
+        <th>Distrct ID</th>
+        <th>White Population</th>
+        <th>Target Population</th>
       </tr>
     </thead>
     <tbody>
       <tr *ngFor="let data of mmTable.data">
-        <td>{{ data.precinctName }}</td>
-        <td>{{ data.demographicGroup }}</td>
-        <td>{{ data.population }} </td>
-        <td>{{ data.winningVotes }}</td>
-        <td>{{ data.totalVotes}} </td>
-        <td>{{ data.winningParty }} </td>
-        <td>{{ data.percentage }} </td>
-        <td>{{ data.eligible }}</td>
+        <td>{{ data.name }}</td>
+        <td>{{ data.minorityGroupPopulation.WHITE }}</td>
+        <td>{{ data.minorityGroupPopulation.AFRICAN_AMERICAN }} </td>
+      </tr>
+    </tbody>
+  </nz-table>
+  <nz-table #mm_newTable [nzData]="mm_data_new">
+    <thead>
+      <tr>
+        <th>Distrct ID</th>
+        <th>White Population</th>
+        <th>Target Population</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let data of mm_newTable.data">
+        <td>{{ data.name }}</td>
+        <td>{{ data.minorityGroupPopulation.WHITE }}</td>
+        <td>{{ data.minorityGroupPopulation.AFRICAN_AMERICAN }} </td>
       </tr>
     </tbody>
   </nz-table>
