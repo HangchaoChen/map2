@@ -286,8 +286,48 @@ export class MapComponent implements OnInit {
       this.mapService.change_p1_color_status(true);
     };
 
+    // let update_map_p2 = (data, layer) => {
+    //   let done = data["result"].isFinal;
+
+    //   // if (first_p1) {
+    //   //   this.p1Data = data["result"].clusters;
+    //   //   first_p1 = false;
+    //   // } else {
+    //   this.p2Data = data.result.clusters;
+    //   //}
+
+    //   let x = 0; // change color
+    //   for (var key of Object.keys(this.p1Data)) {
+    //     //console.log("x: ", x);
+    //     for (let i = 0; i < this.p2Data[key].length; i++) {
+    //       this.id_map.set(this.p2Data[key][i], colors[x]); // change color
+    //     }
+    //     x++;
+    //     if (x >= 19) {
+    //       x = 0;
+    //     }
+    //   }
+
+    //   id_map = this.id_map;
+    //   layer.eachLayer(layers => {
+    //     let id = layers.feature.properties.id;
+    //     if (this.id_map.has(id)) {
+    //       layers.setStyle({
+    //         weight: 1,
+    //         opacity: 0.7,
+    //         fillOpacity: 0.7,
+    //         color: id_map.get(id),
+    //         fillColor: id_map.get(id)
+    //       });
+    //     }
+    //   });
+    //   this.mapService.change_p2_status(done);
+    //   this.mapService.change_p2_color_status(true);
+    // };
+
     let update_map_p2 = (data, layer) => {
       let done = data["result"].isFinal;
+      //console.log("is it done?: ", done);
 
       // if (first_p1) {
       //   this.p1Data = data["result"].clusters;
@@ -296,31 +336,128 @@ export class MapComponent implements OnInit {
       this.p2Data = data.result.clusters;
       //}
 
-      let x = 0; // change color
-      for (var key of Object.keys(this.p1Data)) {
-        //console.log("x: ", x);
-        for (let i = 0; i < this.p1Data[key].length; i++) {
-          this.id_map.set(this.p1Data[key][i], colors[x]); // change color
+      if (done) {
+        console.log("p2 done", data);
+        let info = data.result.clustersData;
+        let x = 0; // change color
+        for (var key of Object.keys(this.p2Data)) {
+          //console.log("x: ", x);
+          for (let i = 0; i < this.p2Data[key].length; i++) {
+            this.id_map.set(this.p2Data[key][i], colors[x]); // change color
+            let information = {};
+            information["id"] = x + 1;
+            information["total"] = info[key].population;
+            information["WHITE"] = info[key].minorityGroupPopulation.WHITE;
+            information["black"] =
+              info[key].minorityGroupPopulation.AFRICAN_AMERICAN;
+            information["indian"] =
+              info[
+                key
+              ].minorityGroupPopulation.AMERICAN_INDIAN_AND_ALASKA_NATIVE;
+            information["ASIAN"] = info[key].minorityGroupPopulation.ASIAN;
+            information["hawaiian"] =
+              info[
+                key
+              ].minorityGroupPopulation.NATIVE_HAWAIIAN_AND_OTHER_PACIFIC_ISLANDER;
+            information["mix"] =
+              info[key].minorityGroupPopulation.TWO_OR_MORE_RACES;
+            information["other"] =
+              info[key].minorityGroupPopulation.SOME_OTHER_RACE;
+            information["democrat"] = info[key].demVotes;
+            information["republican"] = info[key].gopVotes;
+            information["winner"] =
+              information["democrat"] > information["democrat"]
+                ? "Democratic"
+                : "Republican";
+            //console.log("id: ", this.p1Data[key][i], information);
+            id_info_map.set(this.p2Data[key][i], information);
+          }
+          x++;
+          if (x >= 19) {
+            x = 0;
+          }
         }
-        x++;
-        if (x >= 19) {
-          x = 0;
+      } else {
+        let x = 0; // change color
+        for (var key of Object.keys(this.p2Data)) {
+          //console.log("x: ", x);
+          for (let i = 0; i < this.p2Data[key].length; i++) {
+            this.id_map.set(this.p2Data[key][i], colors[x]); // change color
+          }
+          x++;
+          if (x >= 19) {
+            x = 0;
+          }
         }
       }
 
       id_map = this.id_map;
-      layer.eachLayer(layers => {
-        let id = layers.feature.properties.id;
-        if (this.id_map.has(id)) {
-          layers.setStyle({
-            weight: 1,
-            opacity: 0.7,
-            fillOpacity: 0.7,
-            color: id_map.get(id),
-            fillColor: id_map.get(id)
-          });
-        }
-      });
+
+      if (done) {
+        layer.eachLayer(layers => {
+          let id = layers.feature.properties.id;
+          let vote = "vote_" + this.selected_year;
+          // console.log("vote: ", vote);
+          // console.log(layers.feature);
+          layers.feature.properties["id2"] = id;
+          layers.feature.properties.id = id_info_map.get(id).id;
+          layers.feature.properties.demographic["Total"] = id_info_map.get(
+            id
+          ).total;
+          layers.feature.properties.demographic["White"] = id_info_map.get(
+            id
+          ).WHITE;
+          layers.feature.properties.demographic[
+            "Black or African American"
+          ] = id_info_map.get(id).black;
+          layers.feature.properties.demographic["Asian"] = id_info_map.get(
+            id
+          ).ASIAN;
+          layers.feature.properties.demographic[
+            "Native Hawaiian and Other Pacific Islander"
+          ] = id_info_map.get(id).hawaiian;
+          layers.feature.properties.demographic[
+            "Two or more races"
+          ] = id_info_map.get(id).mix;
+          layers.feature.properties.demographic[
+            "American Indian and Alaska Native"
+          ] = id_info_map.get(id).indian;
+          layers.feature.properties.demographic[
+            "Some Other Race"
+          ] = id_info_map.get(id).other;
+
+          layers.feature.properties[vote].Republican = id_info_map.get(
+            id
+          ).republican;
+          layers.feature.properties[vote].Democratic = id_info_map.get(
+            id
+          ).democrat;
+          layers.feature.properties[vote].winner = id_info_map.get(id).winner;
+
+          if (this.id_map.has(id)) {
+            layers.setStyle({
+              weight: 1,
+              opacity: 0.7,
+              fillOpacity: 0.7,
+              color: id_map.get(id),
+              fillColor: id_map.get(id)
+            });
+          }
+        });
+      } else {
+        layer.eachLayer(layers => {
+          let id = layers.feature.properties.id;
+          if (this.id_map.has(id)) {
+            layers.setStyle({
+              weight: 1,
+              opacity: 0.7,
+              fillOpacity: 0.7,
+              color: id_map.get(id),
+              fillColor: id_map.get(id)
+            });
+          }
+        });
+      }
       this.mapService.change_p2_status(done);
       this.mapService.change_p2_color_status(true);
     };
