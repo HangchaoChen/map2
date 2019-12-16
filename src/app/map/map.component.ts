@@ -147,9 +147,6 @@ export class MapComponent implements OnInit {
     let update_map = (data, layer) => {
       let done = data["result"].isFinal;
       //console.log("is it done?: ", done);
-      if (done) {
-        console.log("done: ", data);
-      }
 
       // if (first_p1) {
       //   this.p1Data = data["result"].clusters;
@@ -165,6 +162,7 @@ export class MapComponent implements OnInit {
           this.id_map.set(this.p1Data[key][i], colors[x]); // change color
         }
       }
+
       id_map = this.id_map;
       layer.eachLayer(layers => {
         let id = layers.feature.properties.id;
@@ -178,6 +176,23 @@ export class MapComponent implements OnInit {
           });
         }
       });
+
+      //change properties if it's done
+      // if (done) {
+      //   let i = 0;
+      //   let cluster_id_to_district_id = new Map();
+      //   for (var key of Object.keys(this.p1Data)) {
+      //     for (let i = 0; i < this.p1Data[key].length; i++) {
+      //       cluster_id_to_district_id.set(this.p1Data[key][i], i); // change color
+      //     }
+      //     i++;
+      //   }
+      //   layer.eachLayer(layers => {
+      //     let id = layers.feature.properties.id;
+      //     layers.feature.properties.id = cluster_id_to_district_id.get(id);
+      //   });
+      // }
+
       this.mapService.change_p1_status(done);
       this.mapService.change_p1_color_status(true);
     };
