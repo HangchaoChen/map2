@@ -49,6 +49,18 @@ export class SettingComponent implements OnInit {
 
   setting_has_error = false;
 
+  view_mm = false;
+
+  mm_data;
+
+  loading_mm = false;
+
+  view_score = false;
+
+  load_score = false;
+
+  socre_data;
+
   weights = [
     this.Reock_Compactness,
     this.Convex_Hull_Compactness,
@@ -61,6 +73,22 @@ export class SettingComponent implements OnInit {
     this.Population_Homogeneity,
     this.Population_Equality
   ];
+  onClickMM() {
+    this.loading_mm = true;
+    this.view_mm = true;
+  }
+  close_MM() {
+    this.view_mm = false;
+  }
+
+  onClickScore() {
+    this.load_score = true;
+    this.view_score = true;
+  }
+
+  close_score() {
+    this.view_score = false;
+  }
 
   change_year() {
     this.mapService.changeYear(this.selectedYear);

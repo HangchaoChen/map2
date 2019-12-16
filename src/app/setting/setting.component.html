@@ -184,9 +184,83 @@
     </div>
   </li>
 
+  <li nz-menu-item>
+    <button [nzLoading]="load_score" nz-button nzType="primary" [nzSize]="large" nzShape="round"
+      (click)="onClickScore()">
+      View Score Difference
+    </button>
+  </li>
+
+  <li nz-menu-item>
+    <button [nzLoading]="loading_mm" nz-button nzType="primary" [nzSize]="large" nzShape="round" (click)="onClickMM()">
+      View MM Districts
+    </button>
+  </li>
+
+
   <div *ngIf="  setting_has_error ">
     <nz-alert nzType="error" nzMessage="Error" nzDescription="This is an error on setting." nzShowIcon>
     </nz-alert>
   </div>
 
 </ul>
+
+<nz-drawer [nzBodyStyle]="{ height: 'calc(100% - 55px)', overflow: 'auto' }" [nzMaskClosable]="false" [nzWidth]="900"
+  [nzVisible]="view_mm" nzTitle="Majority-Minority Districts" (nzOnClose)="close_MM()">
+  <nz-table #mmTable [nzData]="mm_data">
+    <thead>
+      <tr>
+        <th>Precinct Name</th>
+        <th>Demographic Group</th>
+        <th>Population</th>
+        <th>Winning Votes</th>
+        <th>Total Votes</th>
+        <th>Winning Party</th>
+        <th>Percentage</th>
+        <th>Eligibility</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let data of mmTable.data">
+        <td>{{ data.precinctName }}</td>
+        <td>{{ data.demographicGroup }}</td>
+        <td>{{ data.population }} </td>
+        <td>{{ data.winningVotes }}</td>
+        <td>{{ data.totalVotes}} </td>
+        <td>{{ data.winningParty }} </td>
+        <td>{{ data.percentage }} </td>
+        <td>{{ data.eligible }}</td>
+      </tr>
+    </tbody>
+  </nz-table>
+</nz-drawer>
+
+<nz-drawer [nzBodyStyle]="{ height: 'calc(100% - 55px)', overflow: 'auto' }" [nzMaskClosable]="false" [nzWidth]="900"
+  [nzVisible]="view_score" nzTitle="Gerrymandering Scores Comparison " (nzOnClose)="close_score()">
+  <nz-table #scoreTable [nzData]="socre_data">
+    <thead>
+      <tr>
+        <th>Precinct Name</th>
+        <th>Demographic Group</th>
+        <th>Population</th>
+        <th>Winning Votes</th>
+        <th>Total Votes</th>
+        <th>Winning Party</th>
+        <th>Percentage</th>
+        <th>Eligibility</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let data of scoreTable.data">
+        <td>{{ data.precinctName }}</td>
+        <td>{{ data.demographicGroup }}</td>
+        <td>{{ data.population }} </td>
+        <td>{{ data.winningVotes }}</td>
+        <td>{{ data.totalVotes}} </td>
+        <td>{{ data.winningParty }} </td>
+        <td>{{ data.percentage }} </td>
+        <td>{{ data.eligible }}</td>
+      </tr>
+    </tbody>
+  </nz-table>
+</nz-drawer>

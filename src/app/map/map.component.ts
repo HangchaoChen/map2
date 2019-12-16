@@ -108,33 +108,35 @@ export class MapComponent implements OnInit {
       .layers(null, overlayMaps, { position: "bottomleft" })
       .addTo(map);
 
-    var colors = [
-      "Aquamarine",
-      "IndianRed",
-      "DeepSkyBlue",
-      "DarkSlateGray",
-      "BlueViolet",
-      "SlateGray",
-      "YellowGreen",
-      "Gray",
-      "DimGray",
-      "Silver",
-      "MistyRose",
-      "Azure",
-      "Olive",
-      "Peru",
-      "SandyBrown",
-      "Sienna",
-      "Cornsilk",
-      "Navy",
-      "CadetBlue",
-      "Gold",
-      "Moccasin",
-      "OrangeRed",
-      "Indigo",
-      "Fuchsia",
-      "HotPink"
-    ];
+    var colors;
+
+    // var colors = [
+    //   "Aquamarine",
+    //   "IndianRed",
+    //   "DeepSkyBlue",
+    //   "DarkSlateGray",
+    //   "BlueViolet",
+    //   "SlateGray",
+    //   "YellowGreen",
+    //   "Gray",
+    //   "DimGray",
+    //   "Silver",
+    //   "MistyRose",
+    //   "Azure",
+    //   "Olive",
+    //   "Peru",
+    //   "SandyBrown",
+    //   "Sienna",
+    //   "Cornsilk",
+    //   "Navy",
+    //   "CadetBlue",
+    //   "Gold",
+    //   "Moccasin",
+    //   "OrangeRed",
+    //   "Indigo",
+    //   "Fuchsia",
+    //   "HotPink"
+    // ];
 
     //this.load_p1_data(p1_data);
 
@@ -144,7 +146,10 @@ export class MapComponent implements OnInit {
 
     let update_map = (data, layer) => {
       let done = data["result"].isFinal;
-      console.log("is it done?: ", done);
+      //console.log("is it done?: ", done);
+      if (done) {
+        console.log("done: ", data);
+      }
 
       // if (first_p1) {
       //   this.p1Data = data["result"].clusters;
@@ -154,10 +159,10 @@ export class MapComponent implements OnInit {
       //}
 
       for (var key of Object.keys(this.p1Data)) {
-        let x = "#" + color_generator.get_random_color(key);
+        let x = Math.floor(Math.random() * Math.floor(18)); // change color
         //console.log("x: ", x);
         for (let i = 0; i < this.p1Data[key].length; i++) {
-          this.id_map.set(this.p1Data[key][i], x);
+          this.id_map.set(this.p1Data[key][i], colors[x]); // change color
         }
       }
       id_map = this.id_map;
@@ -590,9 +595,6 @@ export class MapComponent implements OnInit {
             "Democratic : " +
             (democratic == -1 ? "" : democratic) +
             "<br/>" +
-            "Others : " +
-            (others == -1 ? "" : others) +
-            "<br/>" +
             "Winner Party : " +
             (winner == "" ? "" : winner) +
             "<br/>"
@@ -630,9 +632,6 @@ export class MapComponent implements OnInit {
             "<br/>" +
             "Democratic : " +
             (democratic == -1 ? "" : democratic) +
-            "<br/>" +
-            "Others : " +
-            (others == -1 ? "" : others) +
             "<br/>" +
             "Winner Party : " +
             (winner == "" ? "" : winner) +
